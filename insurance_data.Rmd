@@ -1,5 +1,5 @@
-
 ---
+title: "R"
 output: rmarkdown::github_document
 ---
 
@@ -8,6 +8,8 @@ output: rmarkdown::github_document
 library(ggplot2)
 library(dplyr)
 library(GGally)
+library(readr)
+Medicalpremium <- read_csv("C:/Users/malis/3rdYear/New folder (3)/New folder/Medicalpremium.csv")
 
 df = Medicalpremium
 
@@ -35,9 +37,6 @@ ggplot() +
 
 ```{r}
 ggcorr(df[c("Age", "Weight", "Height", "PremiumPrice")])
-
-
-```{r}
 ```
 
 
