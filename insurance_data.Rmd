@@ -1,0 +1,62 @@
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(GGally)
+
+df = Medicalpremium
+
+lapply(df, class)
+
+unique(df$NumberOfMajorSurgeries)
+
+ggplot() +
+  geom_boxplot(df, mapping=aes(x=Age, fill=as.factor(NumberOfMajorSurgeries)))
+
+```
+
+
+```{r}
+ggplot() +
+  geom_boxplot(df, mapping=aes(x=Weight, fill=as.factor(Diabetes)))
+```
+
+
+```{r}
+ggplot() +
+  geom_point(df, mapping=aes(x=df$Weight, y=df$Height, color=as.factor(df$BloodPressureProblems)))
+```
+
+
+```{r}
+ggcorr(df[c("Age", "Weight", "Height", "PremiumPrice")])
+
+
+```{r}
+```
+
+
+```{r}
+
+df[c("Age", "Weight", "Height")]
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
