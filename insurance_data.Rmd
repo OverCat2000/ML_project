@@ -72,6 +72,26 @@ ggplot() +
 
 
 ```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
 df= df %>%
   mutate(BMI = df$Weight/((df$Height/100)^2)) %>%
   mutate(BMI_cat = cut(BMI, breaks=c(-Inf, 18.5, 24.5, 29.9, 34.9, Inf), 
@@ -131,30 +151,54 @@ ggplot() +
 
 
 ```{r}
-temp = df %>% 
-  group_by(NumberOfMajorSurgeries) %>%
-  summarise(mean_price=mean(PremiumPrice)) %>%
-  arrange(desc(mean_price))
+fun = function(cat) {
+  temp = df %>% 
+    group_by(df[c(cat)]) %>%
+    summarise(mean_price=mean(PremiumPrice)) %>%
+    arrange(desc(mean_price))
+  temp[[cat]] = as.factor(temp[[cat]])
+  ggplot() +
+    geom_bar(temp, mapping=aes_string(x=cat, y="mean_price", fill=cat), stat="identity")
+  }
+  
+```
 
+
+```{r}
+
+fun("BloodPressureProblems")
+```
+
+
+```{r}
+fun("AnyChronicDiseases")
+```
+
+
+```{r}
+fun("NumberOfMajorSurgeries")
+```
+
+
+```{r}
+temp = df %>%
+  group_by(BMI_cat, AnyTransplants) %>%
+  summarise(mean_price=mean(PremiumPrice))
 temp
+
 ```
 
 
 ```{r}
 ggplot() +
-  geom_bar(temp, mapping=aes(x=NumberOfMajorSurgeries, y=mean_price), stat="identity")
+  geom_bar(temp, mapping=aes(x=BMI_cat, y=mean_price, fill=as.factor(AnyTransplants)),
+                             position="dodge", stat="identity")
 ```
 
 
 ```{r}
-```
-
-
-```{r}
-```
-
-
-```{r}
+ggplot() +
+  geom_jitter(df, mapping=aes(x=Age, y=PremiumPrice, color=as.factor(NumberOfMajorSurgeries)))
 ```
 
 

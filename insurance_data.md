@@ -210,7 +210,7 @@ ggplot() +
 
     ## Picking joint bandwidth of 5.71
 
-![](insurance_data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](insurance_data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 ``` r
 BMI.count = df %>%
@@ -224,14 +224,14 @@ ggplot() +
   geom_bar(df, mapping=aes(x=BMI_cat, fill=BMI_cat))
 ```
 
-![](insurance_data_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](insurance_data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ``` r
 ggplot() +
   geom_bar(df, mapping=aes(x=BMI_cat, fill=as.factor(AnyChronicDiseases)), position="fill")
 ```
 
-![](insurance_data_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](insurance_data_files/figure-gfm/unnamed-chunk-19-1.png)<!-- -->
 
 ``` r
 temp = df %>% 
@@ -245,28 +245,84 @@ ggplot() +
   geom_bar(temp, mapping=aes(x=BMI_cat, y=mean_price), stat="identity")
 ```
 
-![](insurance_data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](insurance_data_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
 
 ``` r
-temp = df %>% 
-  group_by(NumberOfMajorSurgeries) %>%
-  summarise(mean_price=mean(PremiumPrice)) %>%
-  arrange(desc(mean_price))
+fun = function(cat) {
+  temp = df %>% 
+    group_by(df[c(cat)]) %>%
+    summarise(mean_price=mean(PremiumPrice)) %>%
+    arrange(desc(mean_price))
+  temp[[cat]] = as.factor(temp[[cat]])
+  ggplot() +
+    geom_bar(temp, mapping=aes_string(x=cat, y="mean_price", fill=cat), stat="identity")
+  }
+```
 
+``` r
+fun("BloodPressureProblems")
+```
+
+    ## Warning: `aes_string()` was deprecated in ggplot2 3.0.0.
+    ## ℹ Please use tidy evaluation idioms with `aes()`.
+    ## ℹ See also `vignette("ggplot2-in-packages")` for more information.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+``` r
+fun("AnyChronicDiseases")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+``` r
+fun("NumberOfMajorSurgeries")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
+``` r
+temp = df %>%
+  group_by(BMI_cat, AnyTransplants) %>%
+  summarise(mean_price=mean(PremiumPrice))
+```
+
+    ## `summarise()` has grouped output by 'BMI_cat'. You can override using the
+    ## `.groups` argument.
+
+``` r
 temp
 ```
 
-    ## # A tibble: 4 × 2
-    ##   NumberOfMajorSurgeries mean_price
-    ##                    <dbl>      <dbl>
-    ## 1                      2     28084.
-    ## 2                      3     28000 
-    ## 3                      1     24742.
-    ## 4                      0     22969.
+    ## # A tibble: 10 × 3
+    ## # Groups:   BMI_cat [5]
+    ##    BMI_cat     AnyTransplants mean_price
+    ##    <fct>                <dbl>      <dbl>
+    ##  1 underweight              0     22135.
+    ##  2 underweight              1     32500 
+    ##  3 normal                   0     23432.
+    ##  4 normal                   1     32071.
+    ##  5 overweight               0     23612.
+    ##  6 overweight               1     32000 
+    ##  7 obese                    0     24459.
+    ##  8 obese                    1     31583.
+    ##  9 Extreme                  0     25711.
+    ## 10 Extreme                  1     30333.
 
 ``` r
 ggplot() +
-  geom_bar(temp, mapping=aes(x=NumberOfMajorSurgeries, y=mean_price), stat="identity")
+  geom_bar(temp, mapping=aes(x=BMI_cat, y=mean_price, fill=as.factor(AnyTransplants)),
+                             position="dodge", stat="identity")
 ```
 
-![](insurance_data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
+![](insurance_data_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+
+``` r
+ggplot() +
+  geom_jitter(df, mapping=aes(x=Age, y=PremiumPrice, color=as.factor(NumberOfMajorSurgeries)))
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
