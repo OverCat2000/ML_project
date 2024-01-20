@@ -96,4 +96,143 @@ ggplot() +
 
 
 ```{r}
+BMI.count = df %>%
+  group_by(BMI_cat) %>%
+  tally() %>%
+  arrange(desc(n))
+
+```
+
+
+```{r}
+ggplot() +
+  geom_bar(df, mapping=aes(x=BMI_cat, fill=BMI_cat))
+```
+
+
+```{r}
+ggplot() +
+  geom_bar(df, mapping=aes(x=BMI_cat, fill=as.factor(AnyChronicDiseases)), position="fill")
+```
+
+
+```{r}
+temp = df %>% 
+  group_by(BMI_cat) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+```
+
+
+```{r}
+ggplot() +
+  geom_bar(temp, mapping=aes(x=BMI_cat, y=mean_price), stat="identity")
+```
+
+
+```{r}
+temp = df %>% 
+  group_by(NumberOfMajorSurgeries) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+
+temp
+```
+
+
+```{r}
+ggplot() +
+  geom_bar(temp, mapping=aes(x=NumberOfMajorSurgeries, y=mean_price), stat="identity")
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
 ```

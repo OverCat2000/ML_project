@@ -211,3 +211,62 @@ ggplot() +
     ## Picking joint bandwidth of 5.71
 
 ![](insurance_data_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+``` r
+BMI.count = df %>%
+  group_by(BMI_cat) %>%
+  tally() %>%
+  arrange(desc(n))
+```
+
+``` r
+ggplot() +
+  geom_bar(df, mapping=aes(x=BMI_cat, fill=BMI_cat))
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+``` r
+ggplot() +
+  geom_bar(df, mapping=aes(x=BMI_cat, fill=as.factor(AnyChronicDiseases)), position="fill")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+temp = df %>% 
+  group_by(BMI_cat) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+```
+
+``` r
+ggplot() +
+  geom_bar(temp, mapping=aes(x=BMI_cat, y=mean_price), stat="identity")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+``` r
+temp = df %>% 
+  group_by(NumberOfMajorSurgeries) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+
+temp
+```
+
+    ## # A tibble: 4 × 2
+    ##   NumberOfMajorSurgeries mean_price
+    ##                    <dbl>      <dbl>
+    ## 1                      2     28084.
+    ## 2                      3     28000 
+    ## 3                      1     24742.
+    ## 4                      0     22969.
+
+``` r
+ggplot() +
+  geom_bar(temp, mapping=aes(x=NumberOfMajorSurgeries, y=mean_price), stat="identity")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
