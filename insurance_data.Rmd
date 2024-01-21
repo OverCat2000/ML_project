@@ -210,47 +210,75 @@ ggplot() +
 ```
 
 
+## PCA
+
+
+
 ```{r}
+library(FactoMineR)
+library(factoextra)
 ```
 
 
 ```{r}
+
+df.num = df[, c("Age", "Weight", "Height")]
 ```
 
 
 ```{r}
+res.pca = PCA(df.num, scale.unit=T, ncp=2, graph=T)
 ```
 
 
 ```{r}
+res.pca$eig
 ```
 
 
 ```{r}
+get_eigenvalue(res.pca)
+
 ```
 
 
 ```{r}
+fviz_eig(res.pca, addlabels=T, ylim=c(0, 50))
 ```
 
 
 ```{r}
+var = get_pca_var(res.pca)
+var$coord
+var$cor
+var$cos2
+var$contrib
+```
+#### Correlation circle
+
+```{r}
+fviz_pca_var(res.pca, col.var="red")
+```
+#### Quality of representaion
+
+```{r}
+library(corrplot)
+corrplot(var$cos2, is.corr=F)
 ```
 
 
 ```{r}
+fviz_cos2(res.pca, choice="var", axes=1:2)
+
 ```
 
 
 ```{r}
-```
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
 
-
-```{r}
-```
-
-
-```{r}
 ```
 
 

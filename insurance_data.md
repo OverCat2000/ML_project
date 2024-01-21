@@ -326,3 +326,126 @@ ggplot() +
 ```
 
 ![](insurance_data_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+
+## PCA
+
+``` r
+library(FactoMineR)
+```
+
+    ## Warning: package 'FactoMineR' was built under R version 4.3.2
+
+``` r
+library(factoextra)
+```
+
+    ## Warning: package 'factoextra' was built under R version 4.3.2
+
+    ## Welcome! Want to learn more? See two factoextra-related books at https://goo.gl/ve3WBa
+
+``` r
+df.num = df[, c("Age", "Weight", "Height")]
+```
+
+``` r
+res.pca = PCA(df.num, scale.unit=T, ncp=2, graph=T)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-33-2.png)<!-- -->
+
+``` r
+res.pca$eig
+```
+
+    ##        eigenvalue percentage of variance cumulative percentage of variance
+    ## comp 1  1.0708248               35.69416                          35.69416
+    ## comp 2  1.0161199               33.87066                          69.56482
+    ## comp 3  0.9130553               30.43518                         100.00000
+
+``` r
+get_eigenvalue(res.pca)
+```
+
+    ##       eigenvalue variance.percent cumulative.variance.percent
+    ## Dim.1  1.0708248         35.69416                    35.69416
+    ## Dim.2  1.0161199         33.87066                    69.56482
+    ## Dim.3  0.9130553         30.43518                   100.00000
+
+``` r
+fviz_eig(res.pca, addlabels=T, ylim=c(0, 50))
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->
+
+``` r
+var = get_pca_var(res.pca)
+var$coord
+```
+
+    ##            Dim.1      Dim.2
+    ## Age    0.2575018  0.8722822
+    ## Weight 0.6519506 -0.4896825
+    ## Height 0.7612346  0.1243173
+
+``` r
+var$cor
+```
+
+    ##            Dim.1      Dim.2
+    ## Age    0.2575018  0.8722822
+    ## Weight 0.6519506 -0.4896825
+    ## Height 0.7612346  0.1243173
+
+``` r
+var$cos2
+```
+
+    ##             Dim.1      Dim.2
+    ## Age    0.06630715 0.76087620
+    ## Weight 0.42503957 0.23978896
+    ## Height 0.57947808 0.01545479
+
+``` r
+var$contrib
+```
+
+    ##            Dim.1     Dim.2
+    ## Age     6.192157 74.880550
+    ## Weight 39.692727 23.598489
+    ## Height 54.115116  1.520961
+
+#### Correlation circle
+
+``` r
+fviz_pca_var(res.pca, col.var="red")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
+\#### Quality of representaion
+
+``` r
+library(corrplot)
+```
+
+    ## corrplot 0.92 loaded
+
+``` r
+corrplot(var$cos2, is.corr=F)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
+
+``` r
+fviz_cos2(res.pca, choice="var", axes=1:2)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-40-1.png)<!-- -->
+
+``` r
+fviz_pca_var(res.pca, col.var = "cos2",
+             gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"), 
+             repel = TRUE # Avoid text overlapping
+             )
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
