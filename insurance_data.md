@@ -449,3 +449,257 @@ fviz_pca_var(res.pca, col.var = "cos2",
 ```
 
 ![](insurance_data_files/figure-gfm/unnamed-chunk-41-1.png)<!-- -->
+
+``` r
+fviz_pca_var(res.pca, col.var="contrib", gradient.cols=c("#00AFBB", "#E7B800", "#FC4E07"))
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-42-1.png)<!-- --> \###
+kmeans
+
+``` r
+set.seed(123)
+res.km = kmeans(var$coord, centers=2, nstart=25)
+grp = as.factor(res.km$cluster)
+grp
+```
+
+    ##    Age Weight Height 
+    ##      2      1      1 
+    ## Levels: 1 2
+
+``` r
+fviz_pca_var(res.pca, col.var=grp, palette=c("red", "tomato",
+                                             "orange"),
+             legend.title='cluster')
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+
+``` r
+res.desc = dimdesc(res.pca, axes=c(1, 2), proba=0.05)
+res.desc
+```
+
+    ## $Dim.1
+    ## 
+    ## Link between the variable and the continuous variables (R-square)
+    ## =================================================================================
+    ##        correlation       p.value
+    ## Height   0.7612346 2.676120e-187
+    ## Weight   0.6519506 2.149809e-120
+    ## Age      0.2575018  2.132753e-16
+    ## 
+    ## $Dim.2
+    ## 
+    ## Link between the variable and the continuous variables (R-square)
+    ## =================================================================================
+    ##        correlation       p.value
+    ## Age      0.8722822 5.584104e-308
+    ## Height   0.1243173  9.082404e-05
+    ## Weight  -0.4896825  1.360335e-60
+
+### Individuals
+
+``` r
+ind = get_pca_ind(res.pca)
+```
+
+``` r
+fviz_pca_ind(res.pca, col.ind=as.factor(df$NumberOfMajorSurgeries),
+             palette= c("red", "green", "blue", "purple"),
+             geom.ind="point", 
+             addEllipses=T)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+
+``` r
+fviz_pca_biplot(res.pca, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-47-1.png)<!-- -->
+
+## Correspondence analysis
+
+``` r
+dt = table(df$BMI_cat, as.factor(df$NumberOfMajorSurgeries))
+dt
+```
+
+    ##              
+    ##                 0   1   2   3
+    ##   underweight  20  16   2   1
+    ##   normal      129 116  37   3
+    ##   overweight  171 128  47   5
+    ##   obese       106  75  21   6
+    ##   Extreme      53  37  12   1
+
+``` r
+library(gplots)
+```
+
+    ## Warning: package 'gplots' was built under R version 4.3.2
+
+    ## 
+    ## Attaching package: 'gplots'
+
+    ## The following object is masked from 'package:stats':
+    ## 
+    ##     lowess
+
+``` r
+balloonplot(dt, show.margins=F, label=F, main="surgeryn VS BMI_cat", ylab="", xlab="")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+
+``` r
+chisq = chisq.test(dt)
+```
+
+    ## Warning in chisq.test(dt): Chi-squared approximation may be incorrect
+
+``` r
+chisq$statistic
+```
+
+    ## X-squared 
+    ##  8.421615
+
+``` r
+corrplot(chisq$residuals, is.corr=F)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+
+``` r
+res.ca = CA(dt)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
+
+``` r
+get_eigenvalue(res.ca)
+```
+
+    ##         eigenvalue variance.percent cumulative.variance.percent
+    ## Dim.1 0.0060770696        71.150141                    71.15014
+    ## Dim.2 0.0017343722        20.305976                    91.45612
+    ## Dim.3 0.0007297494         8.543883                   100.00000
+
+``` r
+fviz_ca_row(res.ca, repel=T)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-54-1.png)<!-- -->
+
+``` r
+res.ca$row$cos2
+```
+
+    ##                 Dim 1      Dim 2       Dim 3
+    ## underweight 0.6410877 0.30597366 0.052938661
+    ## normal      0.7010776 0.27988511 0.019037259
+    ## overweight  0.4270454 0.57022527 0.002729333
+    ## obese       0.9537133 0.01159666 0.034690055
+    ## Extreme     0.0130577 0.13584498 0.851097318
+
+``` r
+fviz_ca_row(res.ca, col.row="cos2", 
+            gradient.cols=c("red", "green"))
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-55-1.png)<!-- -->
+
+``` r
+res.ca$col$cos2
+```
+
+    ##       Dim 1       Dim 2      Dim 3
+    ## 0 0.6136396 0.225773672 0.16058673
+    ## 1 0.1561653 0.828659921 0.01517479
+    ## 2 0.7873407 0.159747121 0.05291220
+    ## 3 0.8803337 0.004754302 0.11491204
+
+``` r
+fviz_ca_biplot(res.ca, map="rowgreen", arrow=c(T, F), repel=T)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-57-1.png)<!-- --> \##
+Multiple correspondence analysis
+
+``` r
+df.cat = df[, -c(which(colnames(df) %in% c("Age", "Weight", "Height", "BMI", "PremiumPrice")))]
+```
+
+``` r
+df.cat[, -c(which(colnames(df.cat) == "BMI_cat"))] = lapply(df.cat[, -c(which(colnames(df.cat) == "BMI_cat"))], factor)
+```
+
+``` r
+sapply(df.cat, class)
+```
+
+    ##                Diabetes   BloodPressureProblems          AnyTransplants 
+    ##                "factor"                "factor"                "factor" 
+    ##      AnyChronicDiseases          KnownAllergies HistoryOfCancerInFamily 
+    ##                "factor"                "factor"                "factor" 
+    ##  NumberOfMajorSurgeries                 BMI_cat 
+    ##                "factor"                "factor"
+
+``` r
+summary(df.cat)
+```
+
+    ##  Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases
+    ##  0:572    0:524                 0:931          0:808             
+    ##  1:414    1:462                 1: 55          1:178             
+    ##                                                                  
+    ##                                                                  
+    ##                                                                  
+    ##  KnownAllergies HistoryOfCancerInFamily NumberOfMajorSurgeries
+    ##  0:774          0:870                   0:479                 
+    ##  1:212          1:116                   1:372                 
+    ##                                         2:119                 
+    ##                                         3: 16                 
+    ##                                                               
+    ##         BMI_cat   
+    ##  underweight: 39  
+    ##  normal     :285  
+    ##  overweight :351  
+    ##  obese      :208  
+    ##  Extreme    :103
+
+``` r
+res.mca = MCA(df.cat)
+```
+
+    ## Warning: ggrepel: 2 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-62-2.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-62-3.png)<!-- -->
+
+``` r
+res.mca
+```
+
+    ## **Results of the Multiple Correspondence Analysis (MCA)**
+    ## The analysis was performed on 986 individuals, described by 8 variables
+    ## *The results are available in the following objects:
+    ## 
+    ##    name              description                       
+    ## 1  "$eig"            "eigenvalues"                     
+    ## 2  "$var"            "results for the variables"       
+    ## 3  "$var$coord"      "coord. of the categories"        
+    ## 4  "$var$cos2"       "cos2 for the categories"         
+    ## 5  "$var$contrib"    "contributions of the categories" 
+    ## 6  "$var$v.test"     "v-test for the categories"       
+    ## 7  "$var$eta2"       "coord. of variables"             
+    ## 8  "$ind"            "results for the individuals"     
+    ## 9  "$ind$coord"      "coord. for the individuals"      
+    ## 10 "$ind$cos2"       "cos2 for the individuals"        
+    ## 11 "$ind$contrib"    "contributions of the individuals"
+    ## 12 "$call"           "intermediate results"            
+    ## 13 "$call$marge.col" "weights of columns"              
+    ## 14 "$call$marge.li"  "weights of rows"

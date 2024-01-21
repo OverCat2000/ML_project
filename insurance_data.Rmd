@@ -283,6 +283,249 @@ fviz_pca_var(res.pca, col.var = "cos2",
 
 
 ```{r}
+fviz_pca_var(res.pca, col.var="contrib", gradient.cols=c("#00AFBB", "#E7B800", "#FC4E07"))
+
+```
+### kmeans
+
+```{r}
+set.seed(123)
+res.km = kmeans(var$coord, centers=2, nstart=25)
+grp = as.factor(res.km$cluster)
+grp
+
+fviz_pca_var(res.pca, col.var=grp, palette=c("red", "tomato",
+                                             "orange"),
+             legend.title='cluster')
+```
+
+
+```{r}
+res.desc = dimdesc(res.pca, axes=c(1, 2), proba=0.05)
+res.desc
+```
+### Individuals
+
+```{r}
+ind = get_pca_ind(res.pca)
+
+```
+
+
+```{r}
+fviz_pca_ind(res.pca, col.ind=as.factor(df$NumberOfMajorSurgeries),
+             palette= c("red", "green", "blue", "purple"),
+             geom.ind="point", 
+             addEllipses=T)
+```
+
+
+```{r}
+fviz_pca_biplot(res.pca, geom="point")
+```
+
+## Correspondence analysis
+```{r}
+dt = table(df$BMI_cat, as.factor(df$NumberOfMajorSurgeries))
+dt
+```
+
+
+```{r}
+library(gplots)
+```
+
+
+```{r}
+balloonplot(dt, show.margins=F, label=F, main="surgeryn VS BMI_cat", ylab="", xlab="")
+
+```
+
+
+```{r}
+chisq = chisq.test(dt)
+chisq$statistic
+corrplot(chisq$residuals, is.corr=F)
+```
+
+
+```{r}
+res.ca = CA(dt)
+```
+
+
+```{r}
+get_eigenvalue(res.ca)
+
+```
+
+
+```{r}
+fviz_ca_row(res.ca, repel=T)
+```
+
+
+```{r}
+res.ca$row$cos2
+fviz_ca_row(res.ca, col.row="cos2", 
+            gradient.cols=c("red", "green"))
+```
+
+
+```{r}
+res.ca$col$cos2
+```
+
+
+```{r}
+fviz_ca_biplot(res.ca, map="rowgreen", arrow=c(T, F), repel=T)
+```
+## Multiple correspondence analysis
+
+
+```{r}
+df.cat = df[, -c(which(colnames(df) %in% c("Age", "Weight", "Height", "BMI", "PremiumPrice")))]
+```
+
+
+```{r}
+df.cat[, -c(which(colnames(df.cat) == "BMI_cat"))] = lapply(df.cat[, -c(which(colnames(df.cat) == "BMI_cat"))], factor)
+```
+
+
+```{r}
+sapply(df.cat, class)
+```
+
+
+```{r}
+summary(df.cat)
+```
+
+
+```{r}
+res.mca = MCA(df.cat)
+```
+
+
+```{r}
+res.mca
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
 ```
 
 
