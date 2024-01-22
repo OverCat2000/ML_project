@@ -471,7 +471,6 @@ fviz_screeplot(res.famd)
 
 
 ```{r}
-fviz_famd_ind(res.famd, col.ind="cos2", gradient.cols=c("tomato", "yellow"), geom="point", repel=T)
 ```
 
 

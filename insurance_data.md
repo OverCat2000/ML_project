@@ -681,25 +681,149 @@ res.mca = MCA(df.cat)
 ![](insurance_data_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-62-2.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-62-3.png)<!-- -->
 
 ``` r
-res.mca
+fviz_screeplot(res.mca, addlabels=T, ylim=c(0, 45))
 ```
 
-    ## **Results of the Multiple Correspondence Analysis (MCA)**
-    ## The analysis was performed on 986 individuals, described by 8 variables
-    ## *The results are available in the following objects:
-    ## 
-    ##    name              description                       
-    ## 1  "$eig"            "eigenvalues"                     
-    ## 2  "$var"            "results for the variables"       
-    ## 3  "$var$coord"      "coord. of the categories"        
-    ## 4  "$var$cos2"       "cos2 for the categories"         
-    ## 5  "$var$contrib"    "contributions of the categories" 
-    ## 6  "$var$v.test"     "v-test for the categories"       
-    ## 7  "$var$eta2"       "coord. of variables"             
-    ## 8  "$ind"            "results for the individuals"     
-    ## 9  "$ind$coord"      "coord. for the individuals"      
-    ## 10 "$ind$cos2"       "cos2 for the individuals"        
-    ## 11 "$ind$contrib"    "contributions of the individuals"
-    ## 12 "$call"           "intermediate results"            
-    ## 13 "$call$marge.col" "weights of columns"              
-    ## 14 "$call$marge.li"  "weights of rows"
+![](insurance_data_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
+
+``` r
+fviz_mca_biplot(res.mca, repel=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
+
+``` r
+fviz_mca_var(res.mca, choice="mca.cor", repel=T)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
+
+``` r
+res.mca$var$contrib
+```
+
+    ##                                  Dim 1       Dim 2       Dim 3        Dim 4
+    ## Diabetes_0                1.676125e+00  8.65701709  5.73750547 9.969085e-03
+    ## Diabetes_1                2.315805e+00 11.96090284  7.92718147 1.377371e-02
+    ## BloodPressureProblems_0   1.055358e+00 16.01445823  0.54863261 4.498353e-03
+    ## BloodPressureProblems_1   1.196986e+00 18.16358466  0.62225863 5.102028e-03
+    ## AnyTransplants_0          3.359932e-04  0.05400141  0.09775052 1.594288e+00
+    ## AnyTransplants_1          5.687448e-03  0.91409667  1.65464967 2.698694e+01
+    ## AnyChronicDiseases_0      3.144345e-02  0.06732405  6.32279322 1.570359e+00
+    ## AnyChronicDiseases_1      1.427321e-01  0.30560579 28.70121865 7.128371e+00
+    ## KnownAllergies_0          4.605175e+00  0.38457006  0.40690110 4.043804e-02
+    ## KnownAllergies_1          1.681323e+01  1.40404353  1.48557288 1.476370e-01
+    ## HistoryOfCancerInFamily_0 3.368720e+00  0.04402389  0.10562539 9.165656e-05
+    ## HistoryOfCancerInFamily_1 2.526540e+01  0.33017915  0.79219046 6.874242e-04
+    ## NumberOfMajorSurgeries_0  1.479740e+01  6.69822370  0.66366684 3.983776e-01
+    ## NumberOfMajorSurgeries_1  2.550513e+01  0.05194963  0.39442982 4.989058e-01
+    ## NumberOfMajorSurgeries_2  4.677750e-01 28.00976980  1.99461120 1.514195e+00
+    ## NumberOfMajorSurgeries_3  2.069984e+00  0.68296857 27.88624638 1.158393e+01
+    ## underweight               9.656443e-04  2.10989697  0.16520984 3.328319e+00
+    ## normal                    1.392544e-01  0.63961761  4.30602814 2.669131e-03
+    ## overweight                4.155211e-01  1.03150791  0.77431370 4.531366e-01
+    ## obese                     2.715055e-02  0.36482142  9.12997114 7.294883e+00
+    ## Extreme                   9.982050e-02  2.11143702  0.28324289 3.742342e+01
+    ##                                  Dim 5
+    ## Diabetes_0                3.008222e-06
+    ## Diabetes_1                4.156288e-06
+    ## BloodPressureProblems_0   1.228401e-01
+    ## BloodPressureProblems_1   1.393251e-01
+    ## AnyTransplants_0          1.325836e+00
+    ## AnyTransplants_1          2.244279e+01
+    ## AnyChronicDiseases_0      9.892078e-02
+    ## AnyChronicDiseases_1      4.490336e-01
+    ## KnownAllergies_0          8.079462e-01
+    ## KnownAllergies_1          2.949766e+00
+    ## HistoryOfCancerInFamily_0 1.727261e-01
+    ## HistoryOfCancerInFamily_1 1.295446e+00
+    ## NumberOfMajorSurgeries_0  3.612404e-05
+    ## NumberOfMajorSurgeries_1  2.108723e-02
+    ## NumberOfMajorSurgeries_2  4.319337e-01
+    ## NumberOfMajorSurgeries_3  1.265701e+00
+    ## underweight               2.132101e+01
+    ## normal                    2.396556e+01
+    ## overweight                1.681817e+01
+    ## obese                     4.826881e-01
+    ## Extreme                   5.889167e+00
+
+``` r
+fviz_mca_var(res.mca, col.var="cos2", gradient.cols=c("tomato", "yellow"), repel=T)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-67-1.png)<!-- -->
+
+``` r
+fviz_mca_ind(res.mca, palette=c("yellow", "tomato"), repel=T, habillage="Diabetes", addEllipses=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-68-1.png)<!-- --> \##
+Factor Analysis
+
+``` r
+df[, -c(which(colnames(df) %in% c("Age", "Weight", "Height", "BMI", "PremiumPrice")))] = lapply(df.cat, factor)
+```
+
+``` r
+sapply(df, class)
+```
+
+    ##                     Age                Diabetes   BloodPressureProblems 
+    ##               "numeric"                "factor"                "factor" 
+    ##          AnyTransplants      AnyChronicDiseases                  Height 
+    ##                "factor"                "factor"               "numeric" 
+    ##                  Weight          KnownAllergies HistoryOfCancerInFamily 
+    ##               "numeric"                "factor"                "factor" 
+    ##  NumberOfMajorSurgeries            PremiumPrice                     BMI 
+    ##                "factor"               "numeric"               "numeric" 
+    ##                 BMI_cat 
+    ##                "factor"
+
+``` r
+X = df[, -c(which(colnames(df) == "PremiumPrice"))]
+```
+
+``` r
+dim(X)
+```
+
+    ## [1] 986  12
+
+``` r
+res.famd = FAMD(X)
+```
+
+    ## Warning: ggrepel: 926 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+    ## Warning: ggrepel: 10 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-72-1.png)<!-- -->
+
+    ## Warning: ggrepel: 926 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-72-2.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-72-3.png)<!-- -->
+
+    ## Warning: ggrepel: 4 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-72-4.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-72-5.png)<!-- -->
+
+``` r
+res.famd$eig
+```
+
+    ##        eigenvalue percentage of variance cumulative percentage of variance
+    ## comp 1   2.880723              16.945428                          16.94543
+    ## comp 2   1.785700              10.504120                          27.44955
+    ## comp 3   1.630728               9.592515                          37.04206
+    ## comp 4   1.168548               6.873809                          43.91587
+    ## comp 5   1.162188               6.836399                          50.75227
+
+``` r
+fviz_screeplot(res.famd)
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
