@@ -409,55 +409,69 @@ res.mca = MCA(df.cat)
 
 
 ```{r}
-res.mca
+fviz_screeplot(res.mca, addlabels=T, ylim=c(0, 45))
 ```
 
 
 ```{r}
+fviz_mca_biplot(res.mca, repel=T, geom="point")
 ```
 
 
 ```{r}
+fviz_mca_var(res.mca, choice="mca.cor", repel=T)
 ```
 
 
 ```{r}
+res.mca$var$contrib
 ```
 
 
 ```{r}
+fviz_mca_var(res.mca, col.var="cos2", gradient.cols=c("tomato", "yellow"), repel=T)
 ```
 
 
 ```{r}
+fviz_mca_ind(res.mca, palette=c("yellow", "tomato"), repel=T, habillage="Diabetes", addEllipses=T, geom="point")
+```
+## Factor Analysis
+
+
+```{r}
+df[, -c(which(colnames(df) %in% c("Age", "Weight", "Height", "BMI", "PremiumPrice")))] = lapply(df.cat, factor)
 ```
 
 
 ```{r}
+sapply(df, class)
+X = df[, -c(which(colnames(df) == "PremiumPrice"))]
 ```
 
 
 ```{r}
+dim(X)
 ```
 
 
 ```{r}
+res.famd = FAMD(X)
 ```
 
 
 ```{r}
+res.famd$eig
 ```
 
 
 ```{r}
+fviz_screeplot(res.famd)
 ```
 
 
 ```{r}
-```
-
-
-```{r}
+fviz_famd_ind(res.famd, col.ind="cos2", gradient.cols=c("tomato", "yellow"), geom="point", repel=T)
 ```
 
 
