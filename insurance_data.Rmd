@@ -456,17 +456,35 @@ dim(X)
 
 
 ```{r}
-res.famd = FAMD(X)
+res.famd.a = FAMD(X)
 ```
 
 
 ```{r}
-res.famd$eig
+res.famd.a$eig
 ```
 
 
 ```{r}
-fviz_screeplot(res.famd)
+fviz_screeplot(res.famd.a)
+```
+```{r}
+fviz_mfa_ind(res.famd.a, habillage="BMI_cat", palette=c("red", "blue", "green", "yellow", "purple"), addEllipses=T, repel=T, geom="point")
+```
+
+
+```{r}
+res.km.a = kmeans(res.famd.a$ind$coord, centers=4, nstart=25)
+fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red", "blue", "green", "yellow", "purple", "black"), addEllipses=F, repel=T, geom="point")
+```
+
+
+```{r}
+```
+
+
+```{r}
+X
 ```
 
 
@@ -478,11 +496,69 @@ fviz_screeplot(res.famd)
 ```
 
 
+
+```{r}
+X.copy = X
+```
+
+
+```{r}
+cat.cols = colnames(X)[lapply(X, class) == "factor"]
+temp = lapply(X[, cat.cols], nlevels)
+cat.cols.bi = colnames(X[, cat.cols])[temp == 2]
+cat.cols.bi
+
+for (col in cat.cols.bi) {
+  X.copy[[col]] = recode_factor(X.copy[[col]], "0" = paste0(col, "0"),
+                           "1" = paste0(col, "1"))
+}
+
+X.copy
+```
+
+
+```{r}
+X.org = subset(X.copy, select = -c(BMI, BMI_cat))
+```
+
+
+```{r}
+res.famd = FAMD(X.org)
+```
+
+
+```{r}
+
+```
+
+
 ```{r}
 ```
 
 
 ```{r}
+fviz_ellipses(res.famd, c("HistoryOfCancerInFamily", "Diabetes"), geom="point")
+```
+
+
+```{r}
+fviz_famd_ind(res.famd, habillage="NumberOfMajorSurgeries", palette=c("red", "blue", "green", "yellow"), addEllipses=T, repel=T, geom="point")
+```
+
+
+```{r}
+fviz_famd_ind(res.famd, habillage=X$BMI_cat, palette=c("red", "blue", "green", "yellow", "purple"), repel=T, geom="point")
+```
+
+
+```{r}
+res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25)
+fviz_famd_ind(res.famd, habillage=as.factor(res.km$cluster), palette=c("tomato", "greenyellow", "skyblue"), repel=T, geom="point")
+```
+
+
+```{r}
+
 ```
 
 

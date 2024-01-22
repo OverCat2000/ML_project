@@ -790,7 +790,7 @@ dim(X)
     ## [1] 986  12
 
 ``` r
-res.famd = FAMD(X)
+res.famd.a = FAMD(X)
 ```
 
     ## Warning: ggrepel: 926 unlabeled data points (too many overlaps). Consider
@@ -812,7 +812,7 @@ res.famd = FAMD(X)
 ![](insurance_data_files/figure-gfm/unnamed-chunk-72-4.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-72-5.png)<!-- -->
 
 ``` r
-res.famd$eig
+res.famd.a$eig
 ```
 
     ##        eigenvalue percentage of variance cumulative percentage of variance
@@ -823,7 +823,138 @@ res.famd$eig
     ## comp 5   1.162188               6.836399                          50.75227
 
 ``` r
-fviz_screeplot(res.famd)
+fviz_screeplot(res.famd.a)
 ```
 
 ![](insurance_data_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
+
+``` r
+fviz_mfa_ind(res.famd.a, habillage="BMI_cat", palette=c("red", "blue", "green", "yellow", "purple"), addEllipses=T, repel=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
+
+``` r
+res.km.a = kmeans(res.famd.a$ind$coord, centers=4, nstart=25)
+fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red", "blue", "green", "yellow", "purple", "black"), addEllipses=F, repel=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-76-1.png)<!-- -->
+
+``` r
+X
+```
+
+    ## # A tibble: 986 × 12
+    ##      Age Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases Height
+    ##    <dbl> <fct>    <fct>                 <fct>          <fct>               <dbl>
+    ##  1    45 0        0                     0              0                     155
+    ##  2    60 1        0                     0              0                     180
+    ##  3    36 1        1                     0              0                     158
+    ##  4    52 1        1                     0              1                     183
+    ##  5    38 0        0                     0              1                     166
+    ##  6    30 0        0                     0              0                     160
+    ##  7    33 0        0                     0              0                     150
+    ##  8    23 0        0                     0              0                     181
+    ##  9    48 1        0                     0              0                     169
+    ## 10    38 0        0                     0              0                     182
+    ## # ℹ 976 more rows
+    ## # ℹ 6 more variables: Weight <dbl>, KnownAllergies <fct>,
+    ## #   HistoryOfCancerInFamily <fct>, NumberOfMajorSurgeries <fct>, BMI <dbl>,
+    ## #   BMI_cat <fct>
+
+``` r
+X.copy = X
+```
+
+``` r
+cat.cols = colnames(X)[lapply(X, class) == "factor"]
+temp = lapply(X[, cat.cols], nlevels)
+cat.cols.bi = colnames(X[, cat.cols])[temp == 2]
+cat.cols.bi
+```
+
+    ## [1] "Diabetes"                "BloodPressureProblems"  
+    ## [3] "AnyTransplants"          "AnyChronicDiseases"     
+    ## [5] "KnownAllergies"          "HistoryOfCancerInFamily"
+
+``` r
+for (col in cat.cols.bi) {
+  X.copy[[col]] = recode_factor(X.copy[[col]], "0" = paste0(col, "0"),
+                           "1" = paste0(col, "1"))
+}
+
+X.copy
+```
+
+    ## # A tibble: 986 × 12
+    ##      Age Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases Height
+    ##    <dbl> <fct>    <fct>                 <fct>          <fct>               <dbl>
+    ##  1    45 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    155
+    ##  2    60 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    180
+    ##  3    36 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    158
+    ##  4    52 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    183
+    ##  5    38 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    166
+    ##  6    30 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    160
+    ##  7    33 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    150
+    ##  8    23 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    181
+    ##  9    48 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    169
+    ## 10    38 Diabete… BloodPressureProblem… AnyTransplant… AnyChronicDisease…    182
+    ## # ℹ 976 more rows
+    ## # ℹ 6 more variables: Weight <dbl>, KnownAllergies <fct>,
+    ## #   HistoryOfCancerInFamily <fct>, NumberOfMajorSurgeries <fct>, BMI <dbl>,
+    ## #   BMI_cat <fct>
+
+``` r
+X.org = subset(X.copy, select = -c(BMI, BMI_cat))
+```
+
+``` r
+res.famd = FAMD(X.org)
+```
+
+    ## Warning: ggrepel: 947 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+    ## Warning: ggrepel: 3 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-84-1.png)<!-- -->
+
+    ## Warning: ggrepel: 947 unlabeled data points (too many overlaps). Consider
+    ## increasing max.overlaps
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-84-2.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-84-3.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-84-4.png)<!-- -->![](insurance_data_files/figure-gfm/unnamed-chunk-84-5.png)<!-- -->
+
+``` r
+fviz_ellipses(res.famd, c("HistoryOfCancerInFamily", "Diabetes"), geom="point")
+```
+
+    ## Warning: `gather_()` was deprecated in tidyr 1.2.0.
+    ## ℹ Please use `gather()` instead.
+    ## ℹ The deprecated feature was likely used in the factoextra package.
+    ##   Please report the issue at <https://github.com/kassambara/factoextra/issues>.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-87-1.png)<!-- -->
+
+``` r
+fviz_famd_ind(res.famd, habillage="NumberOfMajorSurgeries", palette=c("red", "blue", "green", "yellow"), addEllipses=T, repel=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-88-1.png)<!-- -->
+
+``` r
+fviz_famd_ind(res.famd, habillage=X$BMI_cat, palette=c("red", "blue", "green", "yellow", "purple"), repel=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-89-1.png)<!-- -->
+
+``` r
+res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25)
+fviz_famd_ind(res.famd, habillage=as.factor(res.km$cluster), palette=c("tomato", "greenyellow", "skyblue"), repel=T, geom="point")
+```
+
+![](insurance_data_files/figure-gfm/unnamed-chunk-90-1.png)<!-- -->
