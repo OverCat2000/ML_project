@@ -10,6 +10,9 @@ library(dplyr)
 library(GGally)
 library(readr)
 library(ggjoy)
+library(FactoMineR)
+library(factoextra)
+library(ggpubr)
 Medicalpremium <- read_csv("C:/Users/malis/3rdYear/New folder (3)/New folder/Medicalpremium.csv")
 
 df = Medicalpremium
@@ -555,9 +558,10 @@ fviz_famd_ind(res.famd, habillage=X$BMI_cat, palette=c("red", "blue", "green", "
 res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25)
 fviz_famd_ind(res.famd, habillage=as.factor(res.km$cluster), palette=c("tomato", "greenyellow", "skyblue"), repel=T, geom="point")
 ```
-
+## hierachical clustering
 
 ```{r}
+res.hcpc = HCPC(res.famd, graph=F)
 
 ```
 
@@ -567,14 +571,32 @@ fviz_famd_ind(res.famd, habillage=as.factor(res.km$cluster), palette=c("tomato",
 
 
 ```{r}
+fviz_cluster(res.hcpc,
+             geom="point",
+             repel = TRUE,            # Avoid label overlapping
+             show.clust.cent = TRUE, # Show cluster centers
+             palette = "jco",         # Color palette see ?ggpubr::ggpar
+             ggtheme = theme_minimal(),
+             main = "Factor map"
+             )
 ```
 
 
 ```{r}
+res.hcpc.a = HCPC(res.famd.a, graph=F, min=3)
 ```
 
 
 ```{r}
+fviz_cluster(res.hcpc.a,
+             geom="point",
+             repel = TRUE,            # Avoid label overlapping
+             show.clust.cent = TRUE, # Show cluster centers
+             palette = "jco",         # Color palette see ?ggpubr::ggpar
+             ggtheme = theme_minimal(),
+             main = "Factor map"
+             )
+`
 ```
 
 

@@ -1,0 +1,214 @@
+---
+title: "R Notebook"
+output: github_document
+---
+
+
+```{r, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(RColorBrewer)
+library(dplyr)
+library(GGally)
+library(readr)
+library(ggjoy)
+library(FactoMineR)
+library(factoextra)
+library(ggpubr)
+library(corrplot)
+library(cowplot)
+```
+
+
+```{r}
+Medicalpremium <- read_csv("C:/Users/malis/3rdYear/New folder (3)/New folder/Medicalpremium.csv")
+df = Medicalpremium
+df
+```
+## preprocessing
+
+```{r}
+cat.cols = colnames(df[, -c(which(colnames(df) %in% c("Age", "Weight", "Height", "PremiumPrice")))])
+num.cols = colnames(df[, c(which(colnames(df) %in% c("Age", "Weight", "Height", "PremiumPrice")))])
+
+cat.cols
+num.cols
+```
+
+
+```{r}
+df[, cat.cols] = lapply(df[, cat.cols], factor)
+lapply(df, class)
+```
+
+
+```{r}
+dt = df
+```
+
+## feature engineering
+
+```{r}
+dt = dt %>%
+  mutate(BMI = df$Weight/((df$Height/100)^2)) %>%
+  mutate(BMI_cat = cut(BMI, breaks=c(-Inf, 18.5, 24.5, 29.9, 34.9, Inf), 
+                       labels=c("underweight", "normal", "overweight", "obese", "Extreme")))
+dt
+```
+
+
+```{r}
+cat.cols = colnames(dt)[lapply(dt, class) == "factor"]
+num.cols = colnames(dt)[lapply(dt, class) == "numeric"]
+```
+## EDA
+
+```{r}
+attach(dt)
+```
+
+
+```{r}
+ggplot(dt, mapping=aes(x=Age,
+                       y=NumberOfMajorSurgeries, 
+                       fill=NumberOfMajorSurgeries)) +
+  geom_boxplot() +
+  scale_fill_brewer(palette = "Paired")
+
+```
+
+
+```{r}
+dt %>%
+  group_by(NumberOfMajorSurgeries) %>%
+  count()
+```
+
+
+```{r}
+ggplot() +
+  geom_joy(dt, mapping=aes(x=Age, 
+                        y=NumberOfMajorSurgeries,
+                        fill=BloodPressureProblems), scale=1, alpha=0.7, rel_min_height=0.02) +
+  scale_fill_brewer(palette = "Set1")
+
+```
+```{r}
+ggplot(dt, mapping=aes(x=Age, color=BloodPressureProblems)) +
+  geom_histogram(binwidth=1, fill="black") +
+  facet_wrap(~NumberOfMajorSurgeries, nrow = 3) +
+  scale_color_brewer(palette="Set1")
+```
+
+
+```{r}
+histBox = function(var, ...) {
+  plt1 = ggplot(dt, aes(x=!!sym(var))) +
+    geom_histogram(..., color="lightblue", fill="darkblue", alpha=0.7) +
+    xlab("")
+  
+  plt2 = ggplot(dt, aes(x=Age)) +
+    geom_boxplot(fill="lightblue", color="darkblue", alpha=0.7)
+  
+  cowplot::plot_grid(plt1, plt2, ncol=1, rel_heights=c(2, 1), align='v', axis='lr')
+  }
+
+
+```
+
+
+```{r}
+histBox("Age", binwidth=1)
+
+```
+
+
+```{r}
+histBox("PremiumPrice", binwidth=3000)
+```
+
+
+```{r}
+for (i in cat.cols) {
+  plt = ggplot(dt, aes(x=!!sym(i), fill=!!sym(i))) +
+    geom_bar() +
+    scale_fill_brewer(palette="Set2")
+  print(plt)
+}
+```
+
+
+```{r}
+for (i in num.cols) {
+  plt = ggplot(dt, aes(y=!!sym(i))) +
+    geom_boxplot(fill="coral", color="black") +
+    scale_fill_brewer(palette="Set2")
+  print(plt)
+}
+```
+
+
+```{r, message=FALSE}
+ggpairs(dt[, num.cols])
+```
+
+
+```{r}
+
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+## FAMD
+
+```{r}
+X = df[, -dim(df)[2]]
+y = df[, dim(df)[2]]
+```
+
+
+```{r}
+res.famd = FAMD(X)
+```
+
+
+```{r}
+res.famd$eig
+
+```
+
+
+```{r}
+fviz_mfa_ind(res.famd, geom="point")
+```
+
+
+```{r}
+res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25)
+fviz_mfa_ind(res.famd, habillage=as.factor(res.km$cluster), palette="Accent", addEllipses=T, repel=T, geom="point")
+
+```
+
+
+```{r}
+```
+
