@@ -477,6 +477,11 @@ fviz_mfa_ind(res.famd.a, habillage="BMI_cat", palette=c("red", "blue", "green", 
 
 
 ```{r}
+res.famd.a$var$contrib
+```
+
+
+```{r}
 res.km.a = kmeans(res.famd.a$ind$coord, centers=4, nstart=25)
 fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red", "blue", "green", "yellow", "purple", "black"), addEllipses=F, repel=T, geom="point")
 ```

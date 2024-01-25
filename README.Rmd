@@ -106,7 +106,7 @@ histBox = function(var, ...) {
     geom_histogram(..., color="lightblue", fill="darkblue", alpha=0.7) +
     xlab("")
   
-  plt2 = ggplot(dt, aes(x=Age)) +
+  plt2 = ggplot(dt, aes(x=!!sym(var))) +
     geom_boxplot(fill="lightblue", color="darkblue", alpha=0.7)
   
   cowplot::plot_grid(plt1, plt2, ncol=1, rel_heights=c(2, 1), align='v', axis='lr')
@@ -123,7 +123,7 @@ histBox("Age", binwidth=1)
 
 
 ```{r}
-histBox("PremiumPrice", binwidth=3000)
+histBox("PremiumPrice", binwidth=2500)
 ```
 
 
@@ -180,6 +180,7 @@ ggpairs(dt[, num.cols])
 
 ## FAMD
 
+## FAMD with original data
 ```{r}
 X = df[, -dim(df)[2]]
 y = df[, dim(df)[2]]
@@ -187,6 +188,7 @@ y = df[, dim(df)[2]]
 
 
 ```{r}
+X
 res.famd = FAMD(X)
 ```
 
@@ -198,14 +200,163 @@ res.famd$eig
 
 
 ```{r}
-fviz_mfa_ind(res.famd, geom="point")
+fviz_mfa_ind(res.famd, geom="point", habillage = "BloodPressureProblems")
 ```
 
 
 ```{r}
-res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25)
-fviz_mfa_ind(res.famd, habillage=as.factor(res.km$cluster), palette="Accent", addEllipses=T, repel=T, geom="point")
+fviz_mfa_ind(res.famd, habillage="Diabetes", palette="Accent", addEllipses=F, repel=T, geom="point")
 
+```
+
+
+```{r}
+res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25, iter.max=50)
+fviz_mfa_ind(res.famd, habillage=as.factor(res.km$cluster), palette="Accent", addEllipses=F, repel=T, geom="point")
+
+```
+
+
+```{r}
+dt["cluster"] = res.km$cluster
+dt
+```
+```{r}
+fviz_nbclust(X, kmeans, method = "wss")
+```
+
+
+```{r}
+ggplot(dt, aes(x=as.factor(cluster), y=PremiumPrice, color=as.factor(cluster))) +
+  geom_jitter(alpha=0.4)
+  
+
+```
+
+
+```{r}
+ggplot(dt, aes(x=Age, y=PremiumPrice)) +
+  geom_point(color=dt$cluster)
+```
+
+
+```{r}
+temp = dt[, c(cat.cols, "cluster")]
+summary(temp[temp$cluster == 1, ])
+summary(temp[temp$cluster == 2, ])
+summary(temp[temp$cluster == 3, ])
+
+
+
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+dt$cluster = factor(dt$cluster)
+lapply(dt, class)
+```
+```{r}
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+## hierachical clustering with original data
+
+```{r}
+res.hcpc = HCPC(res.famd, graph=F, nb.clust=2)
+```
+
+
+```{r}
+fviz_cluster(res.hcpc, geom="point")
+```
+
+
+```{r}
+clust = res.hcpc$data.clust
+dt["cluster"] = clust$clust
+dt
+ggplot(dt, aes(x=cluster, y=PremiumPrice)) +
+  geom_jitter()
+```
+
+
+```{r}
+X.a = dt[, -dim(df)[2]]
+y.a = df[, dim(df)[2]]
+X.a = X.a[, -dim(X.a)[2]]
+```
+## FAMD with BMI, BMI_cat
+
+```{r}
+res.famd.a = FAMD(X.a)
+```
+
+
+```{r}
+fviz_mfa_ind(res.famd.a, habillage="BMI_cat", palette=c("red", "blue", "green", "yellow", "purple"), addEllipses=T, repel=T, geom="point")
+```
+```{r}
+res.km.a = kmeans(res.famd.a$ind$coord, centers=4, nstart=25, iter.max=30)
+fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red", "blue", "green", "yellow", "purple", "black"), addEllipses=F, repel=T, geom="point")
+```
+
+
+```{r}
+dt["cluster"] = res.km.a$cluster
+ggplot(dt, aes(x=cluster, y=PremiumPrice)) +
+  geom_jitter()
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
 ```
 
 
