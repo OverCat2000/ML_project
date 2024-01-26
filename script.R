@@ -245,32 +245,3 @@ temp = dt[, c(cat.cols, "cluster")]
 summary(temp[temp$cluster == 1, ])
 summary(temp[temp$cluster == 2, ])
 summary(temp[temp$cluster == 3, ])
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-res.km.a = kmeans(res.famd.a$ind$coord, centers=4, nstart=25, iter.max=30)
-fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red", "blue", "green", "yellow", "purple", "black"), addEllipses=F, repel=T, geom="point")
