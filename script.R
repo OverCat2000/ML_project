@@ -44,6 +44,7 @@ attach(dt)
 
 
 ##################################################EDA################################################## 
+cols = c("darkred", "firebrick", "indianred2", "salmon", "lightsalmon")
 
 ggplot(dt, mapping=aes(x=Age,
                        y=NumberOfMajorSurgeries, 
