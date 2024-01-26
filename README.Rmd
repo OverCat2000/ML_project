@@ -3,7 +3,6 @@ title: "R Notebook"
 output: github_document
 ---
 
-
 ```{r, message=FALSE, warning=FALSE}
 library(ggplot2)
 library(RColorBrewer)
@@ -16,20 +15,23 @@ library(factoextra)
 library(ggpubr)
 library(corrplot)
 library(cowplot)
+library(glue)
+library(car)
+library(tidyverse)
 ```
 
 
-```{r}
+```{r, message=FALSE}
 Medicalpremium <- read_csv("C:/Users/malis/3rdYear/New folder (3)/New folder/Medicalpremium.csv")
 df = Medicalpremium
 df
 ```
+
 ## preprocessing
 
 ```{r}
 cat.cols = colnames(df[, -c(which(colnames(df) %in% c("Age", "Weight", "Height", "PremiumPrice")))])
 num.cols = colnames(df[, c(which(colnames(df) %in% c("Age", "Weight", "Height", "PremiumPrice")))])
-
 cat.cols
 num.cols
 ```
@@ -53,6 +55,10 @@ dt = dt %>%
   mutate(BMI_cat = cut(BMI, breaks=c(-Inf, 18.5, 24.5, 29.9, 34.9, Inf), 
                        labels=c("underweight", "normal", "overweight", "obese", "Extreme")))
 dt
+
+dq = dt %>%
+  mutate(Age_cat = cut(Age, breaks=c(17, 30, 59, Inf), labels=c("Young Adult", "Adult", "Old")))
+dq
 ```
 
 
@@ -72,7 +78,8 @@ ggplot(dt, mapping=aes(x=Age,
                        y=NumberOfMajorSurgeries, 
                        fill=NumberOfMajorSurgeries)) +
   geom_boxplot() +
-  scale_fill_brewer(palette = "Paired")
+  scale_fill_manual(values=c("darkred", "firebrick", "indianred2", "lightsalmon"))
+  
 
 ```
 
@@ -84,7 +91,7 @@ dt %>%
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 ggplot() +
   geom_joy(dt, mapping=aes(x=Age, 
                         y=NumberOfMajorSurgeries,
@@ -92,31 +99,227 @@ ggplot() +
   scale_fill_brewer(palette = "Set1")
 
 ```
-```{r}
-ggplot(dt, mapping=aes(x=Age, color=BloodPressureProblems)) +
-  geom_histogram(binwidth=1, fill="black") +
-  facet_wrap(~NumberOfMajorSurgeries, nrow = 3) +
-  scale_color_brewer(palette="Set1")
+```{r, purl=FALSE, fig.show="hide"}
+cols = c("darkred", "firebrick", "indianred2", "salmon", "lightsalmon")
+cat.cols = colnames(dq)[lapply(dt, class) == "factor"]
+for (i in cat.cols) {
+  plt = ggplot(dq, aes(y=!!sym(i), x=PremiumPrice, fill=!!sym(i))) +
+    geom_boxplot() +
+    scale_fill_manual(values=cols)
+  print(plt)
+}
+
 ```
+
+```{r}
+ggplot(dq, aes(y=AnyTransplants, x=PremiumPrice, fill=AnyTransplants)) +
+    geom_boxplot() +
+    scale_fill_manual(values=c("darkred", "indianred2")) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r}
+ggplot(dq, aes(y=AnyChronicDiseases, x=PremiumPrice, fill=AnyChronicDiseases)) +
+    geom_boxplot() +
+    scale_fill_manual(values=c("darkred", "indianred2")) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r}
+ggplot(dq, aes(y=HistoryOfCancerInFamily, x=PremiumPrice, fill=HistoryOfCancerInFamily)) +
+    geom_boxplot() +
+    scale_fill_manual(values=c("darkred", "indianred2")) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r}
+```
+
+
+```{r}
+ggplot(dq, aes(y=BloodPressureProblems, x=PremiumPrice, fill=BloodPressureProblems)) +
+    geom_boxplot() +
+    scale_fill_manual(values=c("darkred", "indianred2"))
+```
+
+
+```{r}
+ggplot(dq, aes(y=Diabetes, x=PremiumPrice, fill=Diabetes)) +
+    geom_boxplot() +
+    scale_fill_manual(values=c("darkred", "indianred2")) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r}
+ggplot(dq, aes(y=NumberOfMajorSurgeries, x=PremiumPrice, fill=NumberOfMajorSurgeries)) +
+    geom_boxplot() +
+    scale_fill_manual(values=cols) +
+  theme(legend.position = "bottom")
+```
+
+
+```{r}
+
+plt1 = ggplot(dq, aes(y=NumberOfMajorSurgeries, x=PremiumPrice, fill=NumberOfMajorSurgeries)) +
+    geom_boxplot() +
+    scale_fill_manual(values=cols) +
+  labs(y="") +
+  theme(legend.position = "none")
+
+temp = dq %>% 
+  group_by(NumberOfMajorSurgeries) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+  
+plt2 = ggplot(temp, aes(y=NumberOfMajorSurgeries, x=mean_price, fill=NumberOfMajorSurgeries)) +
+    geom_bar(stat="identity") +
+    scale_fill_manual(values = cols) +
+    labs(x="mean Premium Price") +
+  theme(legend.position = "none")
+
+
+
+leg = get_legend(plt2 +
+                   theme(legend.position = "bottom"))
+
+cow1 = plot_grid(plt2, plt1, ncol=2, rel_heights=c(2, 1))
+
+plot_grid(cow1 , leg, ncol=1, rel_heights = c(1, 0.1))
+```
+
+
+
+
+```{r, purl=FALSE}
+cat.cols = colnames(dq)[lapply(dq, class) == "factor"]
+for (i in cat.cols) {
+  temp = dq %>% 
+  group_by(!!sym(i)) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+  
+  plt = ggplot(temp, aes(x=!!sym(i), y=mean_price, fill=!!sym(i))) +
+    geom_bar(stat="identity") +
+    scale_fill_manual(values = cols) +
+    labs(y="mean Premium Price")
+  print(plt)
+}
+```
+```{r}
+temp = dq %>% 
+  group_by(Age_cat) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(mean_price))
+  
+  plt = ggplot(temp, aes(x=Age_cat, y=mean_price, fill=Age_cat)) +
+    geom_bar(stat="identity") +
+    scale_fill_manual(values = c("darkred", "indianred2", "lightsalmon")) +
+    labs(y="mean Premium Price") +
+    theme(legend.position = "bottom")
+  print(plt)
+
+```
+
+
+
+
+```{r}
+temp = dq %>% 
+  group_by(Age) %>%
+  summarise(mean_price=mean(PremiumPrice)) %>%
+  arrange(desc(Age))
+temp
+
+ggplot(temp, mapping=aes(x=Age, y=mean_price)) +
+  geom_point(color="indianred2") +
+  geom_smooth(method = "lm", se=F, color="darkred") +
+  labs(y="mean Premium Price")
+```
+
+
+```{r}
+plt1 = ggplot(dt, mapping=aes(x=PremiumPrice, fill=KnownAllergies)) +
+  geom_histogram(binwidth=2000, color="black") +
+  scale_fill_manual(values=c("indianred2", "darkred")) +
+  theme(legend.position = "none") +
+  facet_wrap(~factor(KnownAllergies, levels=c(1, 0)), nrow=2) +
+  labs(y="")
+plt2 = ggplot(dt, mapping=aes(x=PremiumPrice, y=KnownAllergies, fill=KnownAllergies)) +
+  geom_joy2(scale=0.8) +
+  scale_fill_manual(values = c("indianred2", "darkred")) +
+  theme(legend.position="none")
+leg = get_legend(plt2 +
+                   theme(legend.position = "bottom"))
+
+cow1 = plot_grid(plt2, plt1, ncol=2, rel_heights=c(2, 1))
+
+plot_grid(cow1 , leg, ncol=1, rel_heights = c(1, 0.1))
+```
+
+
+```{r, purl=FALSE}
+plt1 = ggplot(dt, mapping=aes(x=PremiumPrice, fill=BloodPressureProblems)) +
+  geom_histogram(binwidth=2500, color="black") +
+  scale_fill_manual(values=c("indianred2", "darkred")) +
+  theme(legend.position = "none") +
+  facet_wrap(~factor(BloodPressureProblems, levels=c(1, 0)), nrow=2) +
+  labs(y="")
+plt2 = ggplot(dt, mapping=aes(x=PremiumPrice, y=BloodPressureProblems, fill=BloodPressureProblems)) +
+  geom_joy2(scale=0.8) +
+  scale_fill_manual(values = c("indianred2", "darkred")) +
+  theme(legend.position="none")
+leg = get_legend(plt2 +
+                   theme(legend.position = "bottom"))
+
+cow1 = plot_grid(plt2, plt1, ncol=2, rel_heights=c(2, 1))
+
+plot_grid(cow1 , leg, ncol=1, rel_heights = c(1, 0.1))
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
 
 
 ```{r}
 histBox = function(var, ...) {
   plt1 = ggplot(dt, aes(x=!!sym(var))) +
-    geom_histogram(..., color="lightblue", fill="darkblue", alpha=0.7) +
+    geom_histogram(..., color="black", fill="darkred") +
     xlab("")
   
   plt2 = ggplot(dt, aes(x=!!sym(var))) +
-    geom_boxplot(fill="lightblue", color="darkblue", alpha=0.7)
+    geom_boxplot(fill="indianred2", color="black")
   
-  cowplot::plot_grid(plt1, plt2, ncol=1, rel_heights=c(2, 1), align='v', axis='lr')
+  plt3 = title = ggdraw()+
+    draw_label(glue("Histogram and Boxplot of {var}"))
+  
+  cow1 = plot_grid(plt1, plt2, ncol=1, rel_heights=c(2, 1), align='v', axis='lr')
+  plot_grid(plt3, cow1, ncol=1, rel_heights = c(0.1, 1))
+  
   }
 
 
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 histBox("Age", binwidth=1)
 
 ```
@@ -126,10 +329,18 @@ histBox("Age", binwidth=1)
 histBox("PremiumPrice", binwidth=2500)
 ```
 
-
 ```{r}
+
+```
+
+
+
+
+
+```{r, purl=FALSE}
+cat.cols = colnames(dq)[lapply(dq, class) == "factor"]
 for (i in cat.cols) {
-  plt = ggplot(dt, aes(x=!!sym(i), fill=!!sym(i))) +
+  plt = ggplot(dq, aes(x=!!sym(i), fill=!!sym(i))) +
     geom_bar() +
     scale_fill_brewer(palette="Set2")
   print(plt)
@@ -137,7 +348,21 @@ for (i in cat.cols) {
 ```
 
 
+
 ```{r}
+
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r, purl=FALSE}
 for (i in num.cols) {
   plt = ggplot(dt, aes(y=!!sym(i))) +
     geom_boxplot(fill="coral", color="black") +
@@ -147,19 +372,27 @@ for (i in num.cols) {
 ```
 
 
-```{r, message=FALSE}
+```{r, message=FALSE, purl=FALSE}
 ggpairs(dt[, num.cols])
 ```
 
 
 ```{r}
-
+temp = num.cols[4]
+num.cols[4] = num.cols[5]
+num.cols[5] = temp
+ggcorr(dt[, num.cols], label=T, label_round=3, low="white", mid="lightsalmon", high="darkred") +
+  labs(title="Correlation Heatmap")
 
 
 ```
 
 
 ```{r}
+model = lm(PremiumPrice ~ ., data=df)         
+
+as.data.frame(vif(model))
+
 ```
 
 
@@ -188,56 +421,148 @@ y = df[, dim(df)[2]]
 
 
 ```{r}
+X.copy = X
+cat.cols = colnames(X)[lapply(X, class) == "factor"]
+cat.cols = cat.cols[1:(length(cat.cols) -1)]
+for (col in cat.cols) {
+  X[[col]] = recode_factor(X[[col]], "0" = paste0(col, "0"),
+                           "1" = paste0(col, "1"))
+}
+```
+
+
+```{r}
 X
 res.famd = FAMD(X)
 ```
 
 
 ```{r}
-res.famd$eig
+res.famd$var$contrib
+```
+
+
+```{r}
+fviz_famd_var(res.famd, "quanti.var", repel=T, col.var="contrib", gradient.cols=rev(cols))
+```
+
+
+```{r}
+fviz_famd_var(res.famd, "quali.var", repel=T, col.var="contrib", gradient.cols=rev(cols))
+```
+
+```{r}
+fviz_famd_var(res.famd, "var", repel=T, col.var="coord", gradient.cols=rev(cols))
+```
+
+
+```{r}
+fviz_screeplot(res.famd)
 
 ```
 
 
 ```{r}
+```
+
+
+```{r}
+```
+
+
+
+
+```{r}
+as.data.frame(res.famd$eig)
+
+```
+```{r}
+res.famd$var$contrib[, 1:2]
+
+```
+
+
+```{r, purl=FALSE}
 fviz_mfa_ind(res.famd, geom="point", habillage = "BloodPressureProblems")
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 fviz_mfa_ind(res.famd, habillage="Diabetes", palette="Accent", addEllipses=F, repel=T, geom="point")
 
 ```
 
 
+
+
 ```{r}
 res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25, iter.max=50)
-fviz_mfa_ind(res.famd, habillage=as.factor(res.km$cluster), palette="Accent", addEllipses=F, repel=T, geom="point")
+fviz_mfa_ind(res.famd, habillage=as.factor(res.km$cluster), palette=c("darkred", "indianred2", "salmon"), addEllipses=T, repel=T, geom="point")
 
 ```
 
 
+
 ```{r}
-dt["cluster"] = res.km$cluster
-dt
-```
-```{r}
-fviz_nbclust(X, kmeans, method = "wss")
+dt["cluster"] = as.factor(res.km$cluster)
+dq["cluster"] = as.factor(res.km$cluster)
+
+fviz_nbclust(X.copy, kmeans, method = "silhouette")
 ```
 
 
 ```{r}
-ggplot(dt, aes(x=as.factor(cluster), y=PremiumPrice, color=as.factor(cluster))) +
-  geom_jitter(alpha=0.4)
+ggplot(dt, aes(x=cluster, y=PremiumPrice, color=cluster)) +
+  geom_jitter() +
+  labs(title="Visualizing clusters against Premium price")
+
+ggplot(dt, aes(x=cluster, y=Age, color=cluster)) +
+  geom_jitter() +
+  labs(title="Visualizing clusters against Premium price")
+ 
   
 
 ```
 
 
-```{r}
-ggplot(dt, aes(x=Age, y=PremiumPrice)) +
-  geom_point(color=dt$cluster)
+```{r, purl=F}
+ggplot(dt, aes(x=Age, y=PremiumPrice, color=as.factor(cluster))) +
+  geom_point()
 ```
+```{r}
+ggplot() +
+  geom_bar(dq, mapping=aes(x=cluster, fill=Age_cat), position="fill")
+
+ggplot() +
+  geom_bar(dt, mapping=aes(x=cluster, fill=Diabetes), position="fill")
+
+cat.cols = colnames(dt)[lapply(dt, class) == "factor"]
+cat.cols = cat.cols[1:(length(cat.cols) - 1)]
+
+for (i in cat.cols) {
+  plt = ggplot(dt, aes(x=cluster, fill=!!sym(i))) +
+    geom_bar(position="fill") +
+    scale_fill_brewer(palette="Set2")
+  print(plt)
+}
+
+```
+
+
+```{r, purl=FALSE}
+temp = dt %>%
+  group_by(cluster, NumberOfMajorSurgeries) %>%
+  count()
+temp
+
+ggplot() +
+  geom_bar(temp, mapping=aes(x=cluster, y=n, fill=NumberOfMajorSurgeries),
+                             position="dodge", stat="identity")
+
+
+
+```
+
 
 
 ```{r}
@@ -246,9 +571,6 @@ summary(temp[temp$cluster == 1, ])
 summary(temp[temp$cluster == 2, ])
 summary(temp[temp$cluster == 3, ])
 
-
-
-
 ```
 
 
@@ -268,10 +590,6 @@ summary(temp[temp$cluster == 3, ])
 ```
 
 
-```{r}
-dt$cluster = factor(dt$cluster)
-lapply(dt, class)
-```
 ```{r}
 
 ```
@@ -285,17 +603,17 @@ lapply(dt, class)
 ```
 ## hierachical clustering with original data
 
-```{r}
+```{r, purl=FALSE}
 res.hcpc = HCPC(res.famd, graph=F, nb.clust=2)
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 fviz_cluster(res.hcpc, geom="point")
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 clust = res.hcpc$data.clust
 dt["cluster"] = clust$clust
 dt
@@ -304,19 +622,19 @@ ggplot(dt, aes(x=cluster, y=PremiumPrice)) +
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 X.a = dt[, -dim(df)[2]]
 y.a = df[, dim(df)[2]]
 X.a = X.a[, -dim(X.a)[2]]
 ```
 ## FAMD with BMI, BMI_cat
 
-```{r}
+```{r, purl=FALSE}
 res.famd.a = FAMD(X.a)
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 fviz_mfa_ind(res.famd.a, habillage="BMI_cat", palette=c("red", "blue", "green", "yellow", "purple"), addEllipses=T, repel=T, geom="point")
 ```
 ```{r}
@@ -325,18 +643,22 @@ fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red",
 ```
 
 
-```{r}
+```{r, purl=FALSE}
 dt["cluster"] = res.km.a$cluster
 ggplot(dt, aes(x=cluster, y=PremiumPrice)) +
   geom_jitter()
 ```
 
 
-```{r}
+```{r, purl=FALSE}
+ggplot(dt, aes(x=cluster, y=Age)) +
+  geom_jitter()
 ```
 
 
-```{r}
+```{r, purl=FALSE}
+ggplot(dt, aes(x=cluster, y=BMI)) +
+  geom_jitter()
 ```
 
 

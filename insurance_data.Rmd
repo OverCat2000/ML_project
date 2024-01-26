@@ -44,7 +44,7 @@ ggplot() +
 
 
 ```{r}
-ggcorr(df[c("Age", "Weight", "Height", "PremiumPrice")])
+ggcorr(df[c("Age", "Weight", "Height", "PremiumPrice")], label=T, label_round=3)
 ```
 
 
@@ -111,7 +111,7 @@ df
 ggplot() +
   geom_joy(df, mapping=aes(x=Age, y=BMI_cat, 
                            fill=BMI_cat)) +
-  facet_grid(~Diabetes, 
+  facet_grid(~BloodPressureProblems, 
              labeller=labeller(.rows=label_both, .cols=label_both))
   
 
