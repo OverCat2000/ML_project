@@ -16,6 +16,7 @@ library(cowplot)
 library(glue)
 library(car)
 library(tidyverse)
+library(gplots)
 ```
 
 ``` r
@@ -510,6 +511,499 @@ as.data.frame(vif(model))
     ## HistoryOfCancerInFamily 1.200793  1        1.095807
     ## NumberOfMajorSurgeries  1.881248  3        1.111069
 
+``` r
+ggplot() +
+  geom_bar(dq, mapping=aes(x=BMI_cat, fill=BloodPressureProblems), position="fill")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-42-1.png)<!-- -->
+
+``` r
+ggplot() +
+  geom_bar(dq, mapping=aes(x=BMI_cat, fill=BloodPressureProblems), position="fill")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-43-1.png)<!-- -->
+
+``` r
+ggplot() +
+  geom_bar(dq, mapping=aes(x=BMI_cat, fill=HistoryOfCancerInFamily), position="fill")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-44-1.png)<!-- -->
+
+``` r
+tble = table(dt$KnownAllergies, dt$HistoryOfCancerInFamily)
+chisq.test(dt$AnyChronicDiseases, dt$HistoryOfCancerInFamily)
+```
+
+    ## 
+    ##  Pearson's Chi-squared test with Yates' continuity correction
+    ## 
+    ## data:  dt$AnyChronicDiseases and dt$HistoryOfCancerInFamily
+    ## X-squared = 0.020624, df = 1, p-value = 0.8858
+
+``` r
+temp = chisq.test(dt$Diabetes, dt$BloodPressureProblems)
+temp$p.value
+```
+
+    ## [1] 7.945461e-05
+
+``` r
+chisq.test(dt$AnyChronicDiseases, dt$AnyChronicDiseases)
+```
+
+    ## 
+    ##  Pearson's Chi-squared test with Yates' continuity correction
+    ## 
+    ## data:  dt$AnyChronicDiseases and dt$AnyChronicDiseases
+    ## X-squared = 979.25, df = 1, p-value < 2.2e-16
+
+``` r
+balloonplot(tble, main ="housetasks", show.margins = FALSE)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-45-1.png)<!-- -->
+
+``` r
+cat.cols = colnames(dt)[lapply(dt, class) == "factor"]
+cat.cols = cat.cols[1:(length(cat.cols) - 1)]
+mat = matrix(NA, nrow=length(cat.cols), ncol=length(cat.cols))
+which(cat.cols == cat.cols[1])
+```
+
+    ## [1] 1
+
+``` r
+for (i in cat.cols) {
+  for (j in cat.cols) {
+    I = which(cat.cols == i)
+    J = which(cat.cols == j)
+    if (i == j) {
+      mat[I, J] == 0
+    } else {
+      tb = table(dt[[i]], dt[[j]])
+      print(tb)
+      mat[I, J] = chisq.test(tb)$p.value
+    }
+  }
+}
+```
+
+    ##    
+    ##       0   1
+    ##   0 335 237
+    ##   1 189 225
+    ##    
+    ##       0   1
+    ##   0 536  36
+    ##   1 395  19
+    ##    
+    ##       0   1
+    ##   0 452 120
+    ##   1 356  58
+    ##    
+    ##       0   1
+    ##   0 433 139
+    ##   1 341  73
+    ##    
+    ##       0   1
+    ##   0 496  76
+    ##   1 374  40
+    ##    
+    ##       0   1   2   3
+    ##   0 282 244  45   1
+    ##   1 197 128  74  15
+    ##    
+    ##       0   1
+    ##   0 335 189
+    ##   1 237 225
+    ##    
+    ##       0   1
+    ##   0 492  32
+    ##   1 439  23
+    ##    
+    ##       0   1
+    ##   0 438  86
+    ##   1 370  92
+    ##    
+    ##       0   1
+    ##   0 409 115
+    ##   1 365  97
+    ##    
+    ##       0   1
+    ##   0 470  54
+    ##   1 400  62
+    ##    
+    ##       0   1   2   3
+    ##   0 315 172  26  11
+    ##   1 164 200  93   5
+    ##    
+    ##       0   1
+    ##   0 536 395
+    ##   1  36  19
+    ##    
+    ##       0   1
+    ##   0 492 439
+    ##   1  32  23
+    ##    
+    ##       0   1
+    ##   0 766 165
+    ##   1  42  13
+    ##    
+    ##       0   1
+    ##   0 731 200
+    ##   1  43  12
+    ##    
+    ##       0   1
+    ##   0 820 111
+    ##   1  50   5
+    ##    
+    ##       0   1   2   3
+    ##   0 453 349 114  15
+    ##   1  26  23   5   1
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 452 356
+    ##   1 120  58
+    ##    
+    ##       0   1
+    ##   0 438 370
+    ##   1  86  92
+    ##    
+    ##       0   1
+    ##   0 766  42
+    ##   1 165  13
+    ##    
+    ##       0   1
+    ##   0 630 178
+    ##   1 144  34
+    ##    
+    ##       0   1
+    ##   0 714  94
+    ##   1 156  22
+    ##    
+    ##       0   1   2   3
+    ##   0 396 305  91  16
+    ##   1  83  67  28   0
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 433 341
+    ##   1 139  73
+    ##    
+    ##       0   1
+    ##   0 409 365
+    ##   1 115  97
+    ##    
+    ##       0   1
+    ##   0 731  43
+    ##   1 200  12
+    ##    
+    ##       0   1
+    ##   0 630 144
+    ##   1 178  34
+    ##    
+    ##       0   1
+    ##   0 698  76
+    ##   1 172  40
+    ##    
+    ##       0   1   2   3
+    ##   0 426 227 105  16
+    ##   1  53 145  14   0
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 496 374
+    ##   1  76  40
+    ##    
+    ##       0   1
+    ##   0 470 400
+    ##   1  54  62
+    ##    
+    ##       0   1
+    ##   0 820  50
+    ##   1 111   5
+    ##    
+    ##       0   1
+    ##   0 714 156
+    ##   1  94  22
+    ##    
+    ##       0   1
+    ##   0 698 172
+    ##   1  76  40
+    ##    
+    ##       0   1   2   3
+    ##   0 479 268 107  16
+    ##   1   0 104  12   0
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 282 197
+    ##   1 244 128
+    ##   2  45  74
+    ##   3   1  15
+    ##    
+    ##       0   1
+    ##   0 315 164
+    ##   1 172 200
+    ##   2  26  93
+    ##   3  11   5
+    ##    
+    ##       0   1
+    ##   0 453  26
+    ##   1 349  23
+    ##   2 114   5
+    ##   3  15   1
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 396  83
+    ##   1 305  67
+    ##   2  91  28
+    ##   3  16   0
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 426  53
+    ##   1 227 145
+    ##   2 105  14
+    ##   3  16   0
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+    ##    
+    ##       0   1
+    ##   0 479   0
+    ##   1 268 104
+    ##   2 107  12
+    ##   3  16   0
+
+    ## Warning in chisq.test(tb): Chi-squared approximation may be incorrect
+
+``` r
+mat
+```
+
+    ##              [,1]         [,2]      [,3]        [,4]         [,5]         [,6]
+    ## [1,]           NA 7.945461e-05 0.3123461 0.006445249 1.482058e-02 1.002919e-01
+    ## [2,] 7.945461e-05           NA 0.5277361 0.179145560 7.756406e-01 1.568669e-01
+    ## [3,] 3.123461e-01 5.277361e-01        NA 0.353633037 1.000000e+00 6.759265e-01
+    ## [4,] 6.445249e-03 1.791456e-01 0.3536330          NA 4.471532e-01 8.858082e-01
+    ## [5,] 1.482058e-02 7.756406e-01 1.0000000 0.447153166           NA 4.604050e-04
+    ## [6,] 1.002919e-01 1.568669e-01 0.6759265 0.885808164 4.604050e-04           NA
+    ## [7,] 4.556699e-10 1.489349e-18 0.8683679 0.106469072 1.550996e-23 1.593026e-34
+    ##              [,7]
+    ## [1,] 4.556699e-10
+    ## [2,] 1.489349e-18
+    ## [3,] 8.683679e-01
+    ## [4,] 1.064691e-01
+    ## [5,] 1.550996e-23
+    ## [6,] 1.593026e-34
+    ## [7,]           NA
+
+``` r
+chi = as.data.frame(mat)
+names(chi) = cat.cols
+rownames(chi) = cat.cols
+which(cat.cols == "HistoryOfCancerInFamily")
+```
+
+    ## [1] 6
+
+``` r
+which(cat.cols == "KnownAllergies")
+```
+
+    ## [1] 5
+
+``` r
+chi[6, 5] = 0
+chi[5, 6] = 0
+chi
+```
+
+    ##                             Diabetes BloodPressureProblems AnyTransplants
+    ## Diabetes                          NA          7.945461e-05      0.3123461
+    ## BloodPressureProblems   7.945461e-05                    NA      0.5277361
+    ## AnyTransplants          3.123461e-01          5.277361e-01             NA
+    ## AnyChronicDiseases      6.445249e-03          1.791456e-01      0.3536330
+    ## KnownAllergies          1.482058e-02          7.756406e-01      1.0000000
+    ## HistoryOfCancerInFamily 1.002919e-01          1.568669e-01      0.6759265
+    ## NumberOfMajorSurgeries  4.556699e-10          1.489349e-18      0.8683679
+    ##                         AnyChronicDiseases KnownAllergies
+    ## Diabetes                       0.006445249   1.482058e-02
+    ## BloodPressureProblems          0.179145560   7.756406e-01
+    ## AnyTransplants                 0.353633037   1.000000e+00
+    ## AnyChronicDiseases                      NA   4.471532e-01
+    ## KnownAllergies                 0.447153166             NA
+    ## HistoryOfCancerInFamily        0.885808164   0.000000e+00
+    ## NumberOfMajorSurgeries         0.106469072   1.550996e-23
+    ##                         HistoryOfCancerInFamily NumberOfMajorSurgeries
+    ## Diabetes                           1.002919e-01           4.556699e-10
+    ## BloodPressureProblems              1.568669e-01           1.489349e-18
+    ## AnyTransplants                     6.759265e-01           8.683679e-01
+    ## AnyChronicDiseases                 8.858082e-01           1.064691e-01
+    ## KnownAllergies                     0.000000e+00           1.550996e-23
+    ## HistoryOfCancerInFamily                      NA           1.593026e-34
+    ## NumberOfMajorSurgeries             1.593026e-34                     NA
+
+``` r
+ggcorr(chi, label = T, label_round = 3, hjust=0.7, size=3, cor_matrix = chi)
+```
+
+![](README_files/figure-gfm/unnamed-chunk-46-1.png)<!-- -->
+
+``` r
+ggplot() +
+  geom_bar(dq, mapping=aes(x=dt$BloodPressureProblems, fill=dt$Diabetes), position="fill")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+
+``` r
+temp = dq %>% 
+  group_by(AnyChronicDiseases) %>%
+  summarise(mean_age=mean(Age)) %>%
+  arrange(desc(mean_age))
+  
+ggplot(temp, aes(x=AnyChronicDiseases, y=mean_age, fill=AnyChronicDiseases)) +
+    geom_bar(stat="identity") +
+    scale_fill_manual(values = cols) +
+    labs(y="mean Premium Age")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-49-1.png)<!-- -->
+
+``` r
+ggplot(dq, aes(x=AnyChronicDiseases, fill=Age_cat)) +
+  geom_bar(position = "fill")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+
+``` r
+temp = num.cols[5]
+q1 = quantile(df[[temp]], 0.25)
+q3 = quantile(df[[temp]], 0.75)
+IQR = q3 - q1
+lb = q1 - 1.5*IQR
+ub = q3 + 1.5*IQR
+lb
+```
+
+    ##   25% 
+    ## 10500
+
+``` r
+ub
+```
+
+    ##   75% 
+    ## 38500
+
+``` r
+df[df[[temp]] < lb | df[[temp]] > ub, ]
+```
+
+    ## # A tibble: 6 × 11
+    ##     Age Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases Height
+    ##   <dbl> <fct>    <fct>                 <fct>          <fct>               <dbl>
+    ## 1    27 0        1                     0              0                     159
+    ## 2    64 1        1                     0              1                     163
+    ## 3    24 0        1                     0              0                     159
+    ## 4    19 0        0                     0              0                     171
+    ## 5    21 0        1                     0              0                     155
+    ## 6    47 1        1                     0              0                     158
+    ## # ℹ 5 more variables: Weight <dbl>, KnownAllergies <fct>,
+    ## #   HistoryOfCancerInFamily <fct>, NumberOfMajorSurgeries <fct>,
+    ## #   PremiumPrice <dbl>
+
+``` r
+dtemp = dt
+dtemp$ID = row.names(dtemp)
+dtemp
+```
+
+    ## # A tibble: 986 × 14
+    ##      Age Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases Height
+    ##    <dbl> <fct>    <fct>                 <fct>          <fct>               <dbl>
+    ##  1    45 0        0                     0              0                     155
+    ##  2    60 1        0                     0              0                     180
+    ##  3    36 1        1                     0              0                     158
+    ##  4    52 1        1                     0              1                     183
+    ##  5    38 0        0                     0              1                     166
+    ##  6    30 0        0                     0              0                     160
+    ##  7    33 0        0                     0              0                     150
+    ##  8    23 0        0                     0              0                     181
+    ##  9    48 1        0                     0              0                     169
+    ## 10    38 0        0                     0              0                     182
+    ## # ℹ 976 more rows
+    ## # ℹ 8 more variables: Weight <dbl>, KnownAllergies <fct>,
+    ## #   HistoryOfCancerInFamily <fct>, NumberOfMajorSurgeries <fct>,
+    ## #   PremiumPrice <dbl>, BMI <dbl>, BMI_cat <fct>, ID <chr>
+
+``` r
+temp = num.cols[-4]
+temp
+```
+
+    ## [1] "Age"          "Height"       "Weight"       "PremiumPrice"
+
+``` r
+identify_outliers_in_all_variables <- function(data, k = 1.5) {
+  outliers <- data.frame()
+
+  for (column in names(data)) {
+    if (column %in% temp) {
+      # Calculate IQR for each variable
+      Q1 <- quantile(data[[column]], 0.25)
+      Q3 <- quantile(data[[column]], 0.75)
+      IQR <- Q3 - Q1
+
+      # Define upper and lower bounds
+      lower_bound <- Q1 - k * IQR
+      upper_bound <- Q3 + k * IQR
+
+      # Identify outliers for the current variable
+      variable_outliers <- data[(data[[column]] < lower_bound) | (data[[column]] > upper_bound), ]
+
+      # Add to the overall outliers dataframe
+      outliers <- rbind(outliers, variable_outliers)
+    }
+  }
+
+  # Keep only rows where all numeric variables are outliers
+  outliers <- outliers[duplicated(outliers), ]
+
+  return(outliers)
+}
+
+identify_outliers_in_all_variables(dtemp)
+```
+
+    ## # A tibble: 1 × 14
+    ##     Age Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases Height
+    ##   <dbl> <fct>    <fct>                 <fct>          <fct>               <dbl>
+    ## 1    27 0        1                     0              0                     159
+    ## # ℹ 8 more variables: Weight <dbl>, KnownAllergies <fct>,
+    ## #   HistoryOfCancerInFamily <fct>, NumberOfMajorSurgeries <fct>,
+    ## #   PremiumPrice <dbl>, BMI <dbl>, BMI_cat <fct>, ID <chr>
+
 ## FAMD
 
 ## FAMD with original data
@@ -560,12 +1054,12 @@ res.famd = FAMD(X)
     ## Warning: ggrepel: 3 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
 
-![](README_files/figure-gfm/unnamed-chunk-48-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-1.png)<!-- -->
 
     ## Warning: ggrepel: 947 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
 
-![](README_files/figure-gfm/unnamed-chunk-48-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-48-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-48-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-48-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-57-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-57-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-57-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-57-5.png)<!-- -->
 
 ``` r
 res.famd$var$contrib
@@ -598,25 +1092,25 @@ res.famd$var$contrib
 fviz_famd_var(res.famd, "quanti.var", repel=T, col.var="contrib", gradient.cols=rev(cols))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-50-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
 
 ``` r
 fviz_famd_var(res.famd, "quali.var", repel=T, col.var="contrib", gradient.cols=rev(cols))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-51-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-60-1.png)<!-- -->
 
 ``` r
 fviz_famd_var(res.famd, "var", repel=T, col.var="coord", gradient.cols=rev(cols))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-52-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-61-1.png)<!-- -->
 
 ``` r
 fviz_screeplot(res.famd)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-53-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
 
 ``` r
 as.data.frame(res.famd$eig)
@@ -649,20 +1143,20 @@ res.famd$var$contrib[, 1:2]
 fviz_mfa_ind(res.famd, geom="point", habillage = "BloodPressureProblems")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-58-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-67-1.png)<!-- -->
 
 ``` r
 fviz_mfa_ind(res.famd, habillage="Diabetes", palette="Accent", addEllipses=F, repel=T, geom="point")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-59-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-68-1.png)<!-- -->
 
 ``` r
 res.km = kmeans(res.famd$ind$coord, centers=3, nstart=25, iter.max=50)
 fviz_mfa_ind(res.famd, habillage=as.factor(res.km$cluster), palette=c("darkred", "indianred2", "salmon"), addEllipses=T, repel=T, geom="point")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-60-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-69-1.png)<!-- -->
 
 ``` r
 dt["cluster"] = as.factor(res.km$cluster)
@@ -671,7 +1165,7 @@ dq["cluster"] = as.factor(res.km$cluster)
 fviz_nbclust(X.copy, kmeans, method = "silhouette")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-61-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-70-1.png)<!-- -->
 
 ``` r
 ggplot(dt, aes(x=cluster, y=PremiumPrice, color=cluster)) +
@@ -679,7 +1173,7 @@ ggplot(dt, aes(x=cluster, y=PremiumPrice, color=cluster)) +
   labs(title="Visualizing clusters against Premium price")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-62-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-71-1.png)<!-- -->
 
 ``` r
 ggplot(dt, aes(x=cluster, y=Age, color=cluster)) +
@@ -687,28 +1181,119 @@ ggplot(dt, aes(x=cluster, y=Age, color=cluster)) +
   labs(title="Visualizing clusters against Premium price")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-62-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-71-2.png)<!-- -->
 
 ``` r
 ggplot(dt, aes(x=Age, y=PremiumPrice, color=as.factor(cluster))) +
   geom_point()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-63-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-72-1.png)<!-- -->
+
+``` r
+X.exp = X
+X.exp$cluster = dt$cluster
+X.exp = X.exp[, -which(colnames(X.exp) %in% c("Height", "Weight", "Age"))]
+temp = as.data.frame(table(X.exp$cluster, X.exp$Diabetes))
+temp
+```
+
+    ##   Var1      Var2 Freq
+    ## 1    1 Diabetes0  316
+    ## 2    2 Diabetes0  203
+    ## 3    3 Diabetes0   53
+    ## 4    1 Diabetes1  185
+    ## 5    2 Diabetes1   82
+    ## 6    3 Diabetes1  147
+
+``` r
+temp = spread(temp, key=Var2, value=Freq)
+temp[, -1] = round(temp[, -1] / rowSums(temp[, -1]), 2)
+temp
+```
+
+    ##   Var1 Diabetes0 Diabetes1
+    ## 1    1      0.63      0.37
+    ## 2    2      0.71      0.29
+    ## 3    3      0.26      0.74
+
+``` r
+for (i in colnames(X.exp)[-8]) {
+  temp = as.data.frame(table(X.exp$cluster, X.exp[[i]]))
+  temp =spread(temp, key=Var2, value=Freq)
+  temp[, -1] = round(temp[, -1] / rowSums(temp[, -1]), 2)
+  print(temp)
+  if (which(colnames(X.exp) == i) == 1) {
+    emp = temp
+  } else {
+    emp = merge(emp, temp, by="Var1")
+  }
+}
+```
+
+    ##   Var1 Diabetes0 Diabetes1
+    ## 1    1      0.63      0.37
+    ## 2    2      0.71      0.29
+    ## 3    3      0.26      0.74
+    ##   Var1 BloodPressureProblems0 BloodPressureProblems1
+    ## 1    1                   0.74                   0.26
+    ## 2    2                   0.40                   0.60
+    ## 3    3                   0.20                   0.80
+    ##   Var1 AnyTransplants0 AnyTransplants1
+    ## 1    1            0.94            0.06
+    ## 2    2            0.94            0.06
+    ## 3    3            0.96            0.04
+    ##   Var1 AnyChronicDiseases0 AnyChronicDiseases1
+    ## 1    1                0.83                0.17
+    ## 2    2                0.82                0.18
+    ## 3    3                0.79                0.21
+    ##   Var1 KnownAllergies0 KnownAllergies1
+    ## 1    1            0.91            0.09
+    ## 2    2            0.46            0.54
+    ## 3    3            0.92            0.08
+    ##   Var1 HistoryOfCancerInFamily0 HistoryOfCancerInFamily1
+    ## 1    1                     1.00                     0.00
+    ## 2    2                     0.63                     0.37
+    ## 3    3                     0.95                     0.05
+    ##   Var1    0    1    2    3
+    ## 1    1 0.88 0.12 0.00 0.00
+    ## 2    2 0.02 0.97 0.01 0.00
+    ## 3    3 0.16 0.17 0.58 0.08
+
+``` r
+print(emp)
+```
+
+    ##   Var1 Diabetes0 Diabetes1 BloodPressureProblems0 BloodPressureProblems1
+    ## 1    1      0.63      0.37                   0.74                   0.26
+    ## 2    2      0.71      0.29                   0.40                   0.60
+    ## 3    3      0.26      0.74                   0.20                   0.80
+    ##   AnyTransplants0 AnyTransplants1 AnyChronicDiseases0 AnyChronicDiseases1
+    ## 1            0.94            0.06                0.83                0.17
+    ## 2            0.94            0.06                0.82                0.18
+    ## 3            0.96            0.04                0.79                0.21
+    ##   KnownAllergies0 KnownAllergies1 HistoryOfCancerInFamily0
+    ## 1            0.91            0.09                     1.00
+    ## 2            0.46            0.54                     0.63
+    ## 3            0.92            0.08                     0.95
+    ##   HistoryOfCancerInFamily1    0    1    2    3
+    ## 1                     0.00 0.88 0.12 0.00 0.00
+    ## 2                     0.37 0.02 0.97 0.01 0.00
+    ## 3                     0.05 0.16 0.17 0.58 0.08
 
 ``` r
 ggplot() +
   geom_bar(dq, mapping=aes(x=cluster, fill=Age_cat), position="fill")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-74-1.png)<!-- -->
 
 ``` r
 ggplot() +
   geom_bar(dt, mapping=aes(x=cluster, fill=Diabetes), position="fill")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-74-2.png)<!-- -->
 
 ``` r
 cat.cols = colnames(dt)[lapply(dt, class) == "factor"]
@@ -722,7 +1307,7 @@ for (i in cat.cols) {
 }
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-64-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-5.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-6.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-7.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-8.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-9.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-64-10.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-74-3.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-5.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-6.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-7.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-8.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-9.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-74-10.png)<!-- -->
 
 ``` r
 temp = dt %>%
@@ -735,15 +1320,15 @@ temp
     ## # Groups:   cluster, NumberOfMajorSurgeries [9]
     ##   cluster NumberOfMajorSurgeries     n
     ##   <fct>   <fct>                  <int>
-    ## 1 1       0                         32
-    ## 2 1       1                         35
-    ## 3 1       2                        117
-    ## 4 1       3                         16
-    ## 5 2       0                        440
-    ## 6 2       1                         61
-    ## 7 3       0                          7
-    ## 8 3       1                        276
-    ## 9 3       2                          2
+    ## 1 1       0                        440
+    ## 2 1       1                         61
+    ## 3 2       0                          7
+    ## 4 2       1                        276
+    ## 5 2       2                          2
+    ## 6 3       0                         32
+    ## 7 3       1                         35
+    ## 8 3       2                        117
+    ## 9 3       3                         16
 
 ``` r
 ggplot() +
@@ -751,34 +1336,11 @@ ggplot() +
                              position="dodge", stat="identity")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-65-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
 
 ``` r
 temp = dt[, c(cat.cols, "cluster")]
 summary(temp[temp$cluster == 1, ])
-```
-
-    ##  Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases
-    ##  0: 53    0: 41                 0:193          0:158             
-    ##  1:147    1:159                 1:  7          1: 42             
-    ##                                                                  
-    ##                                                                  
-    ##                                                                  
-    ##  KnownAllergies HistoryOfCancerInFamily NumberOfMajorSurgeries        BMI_cat  
-    ##  0:184          0:190                   0: 32                  underweight: 4  
-    ##  1: 16          1: 10                   1: 35                  normal     :70  
-    ##                                         2:117                  overweight :75  
-    ##                                         3: 16                  obese      :34  
-    ##                                                                Extreme    :17  
-    ##  cluster
-    ##  1:200  
-    ##  2:  0  
-    ##  3:  0  
-    ##         
-    ## 
-
-``` r
-summary(temp[temp$cluster == 2, ])
 ```
 
     ##  Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases
@@ -794,14 +1356,14 @@ summary(temp[temp$cluster == 2, ])
     ##                                         3:  0                 
     ##                                                               
     ##         BMI_cat    cluster
-    ##  underweight: 25   1:  0  
-    ##  normal     :126   2:501  
+    ##  underweight: 25   1:501  
+    ##  normal     :126   2:  0  
     ##  overweight :182   3:  0  
     ##  obese      :113          
     ##  Extreme    : 55
 
 ``` r
-summary(temp[temp$cluster == 3, ])
+summary(temp[temp$cluster == 2, ])
 ```
 
     ##  Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases
@@ -818,8 +1380,31 @@ summary(temp[temp$cluster == 3, ])
     ##                                                                Extreme    :31  
     ##  cluster
     ##  1:  0  
+    ##  2:285  
+    ##  3:  0  
+    ##         
+    ## 
+
+``` r
+summary(temp[temp$cluster == 3, ])
+```
+
+    ##  Diabetes BloodPressureProblems AnyTransplants AnyChronicDiseases
+    ##  0: 53    0: 41                 0:193          0:158             
+    ##  1:147    1:159                 1:  7          1: 42             
+    ##                                                                  
+    ##                                                                  
+    ##                                                                  
+    ##  KnownAllergies HistoryOfCancerInFamily NumberOfMajorSurgeries        BMI_cat  
+    ##  0:184          0:190                   0: 32                  underweight: 4  
+    ##  1: 16          1: 10                   1: 35                  normal     :70  
+    ##                                         2:117                  overweight :75  
+    ##                                         3: 16                  obese      :34  
+    ##                                                                Extreme    :17  
+    ##  cluster
+    ##  1:  0  
     ##  2:  0  
-    ##  3:285  
+    ##  3:200  
     ##         
     ## 
 
@@ -833,7 +1418,7 @@ res.hcpc = HCPC(res.famd, graph=F, nb.clust=2)
 fviz_cluster(res.hcpc, geom="point")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-75-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-85-1.png)<!-- -->
 
 ``` r
 clust = res.hcpc$data.clust
@@ -864,7 +1449,7 @@ ggplot(dt, aes(x=cluster, y=PremiumPrice)) +
   geom_jitter()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-76-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-86-1.png)<!-- -->
 
 ``` r
 X.a = dt[, -dim(df)[2]]
@@ -884,30 +1469,30 @@ res.famd.a = FAMD(X.a)
     ## Warning: ggrepel: 10 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
 
-![](README_files/figure-gfm/unnamed-chunk-78-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-88-1.png)<!-- -->
 
     ## Warning: ggrepel: 926 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
 
-![](README_files/figure-gfm/unnamed-chunk-78-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-78-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-88-2.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-88-3.png)<!-- -->
 
     ## Warning: ggrepel: 4 unlabeled data points (too many overlaps). Consider
     ## increasing max.overlaps
 
-![](README_files/figure-gfm/unnamed-chunk-78-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-78-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-88-4.png)<!-- -->![](README_files/figure-gfm/unnamed-chunk-88-5.png)<!-- -->
 
 ``` r
 fviz_mfa_ind(res.famd.a, habillage="BMI_cat", palette=c("red", "blue", "green", "yellow", "purple"), addEllipses=T, repel=T, geom="point")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-79-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-89-1.png)<!-- -->
 
 ``` r
 res.km.a = kmeans(res.famd.a$ind$coord, centers=4, nstart=25, iter.max=30)
 fviz_mfa_ind(res.famd.a, habillage=as.factor(res.km.a$cluster), palette=c("red", "blue", "green", "yellow", "purple", "black"), addEllipses=F, repel=T, geom="point")
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-80-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-90-1.png)<!-- -->
 
 ``` r
 dt["cluster"] = res.km.a$cluster
@@ -915,18 +1500,18 @@ ggplot(dt, aes(x=cluster, y=PremiumPrice)) +
   geom_jitter()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-81-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-91-1.png)<!-- -->
 
 ``` r
 ggplot(dt, aes(x=cluster, y=Age)) +
   geom_jitter()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-82-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-92-1.png)<!-- -->
 
 ``` r
 ggplot(dt, aes(x=cluster, y=BMI)) +
   geom_jitter()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-83-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-93-1.png)<!-- -->

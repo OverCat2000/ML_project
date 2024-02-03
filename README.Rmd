@@ -18,6 +18,7 @@ library(cowplot)
 library(glue)
 library(car)
 library(tidyverse)
+library(gplots)
 ```
 
 
@@ -397,14 +398,149 @@ as.data.frame(vif(model))
 
 
 ```{r}
+
+ggplot() +
+  geom_bar(dq, mapping=aes(x=BMI_cat, fill=BloodPressureProblems), position="fill")
+
 ```
 
 
 ```{r}
+ggplot() +
+  geom_bar(dq, mapping=aes(x=BMI_cat, fill=BloodPressureProblems), position="fill")
+
+
 ```
 
 
 ```{r}
+ggplot() +
+  geom_bar(dq, mapping=aes(x=BMI_cat, fill=HistoryOfCancerInFamily), position="fill")
+```
+
+
+```{r}
+tble = table(dt$KnownAllergies, dt$HistoryOfCancerInFamily)
+chisq.test(dt$AnyChronicDiseases, dt$HistoryOfCancerInFamily)
+temp = chisq.test(dt$Diabetes, dt$BloodPressureProblems)
+temp$p.value
+chisq.test(dt$AnyChronicDiseases, dt$AnyChronicDiseases)
+balloonplot(tble, main ="housetasks", show.margins = FALSE)
+
+```
+
+
+```{r}
+cat.cols = colnames(dt)[lapply(dt, class) == "factor"]
+cat.cols = cat.cols[1:(length(cat.cols) - 1)]
+mat = matrix(NA, nrow=length(cat.cols), ncol=length(cat.cols))
+which(cat.cols == cat.cols[1])
+for (i in cat.cols) {
+  for (j in cat.cols) {
+    I = which(cat.cols == i)
+    J = which(cat.cols == j)
+    if (i == j) {
+      mat[I, J] == 0
+    } else {
+      tb = table(dt[[i]], dt[[j]])
+      print(tb)
+      mat[I, J] = chisq.test(tb)$p.value
+    }
+  }
+}
+mat
+chi = as.data.frame(mat)
+names(chi) = cat.cols
+rownames(chi) = cat.cols
+which(cat.cols == "HistoryOfCancerInFamily")
+which(cat.cols == "KnownAllergies")
+chi[6, 5] = 0
+chi[5, 6] = 0
+chi
+ggcorr(chi, label = T, label_round = 3, hjust=0.7, size=3, cor_matrix = chi)
+```
+
+
+```{r}
+
+```
+
+
+```{r}
+ggplot() +
+  geom_bar(dq, mapping=aes(x=dt$BloodPressureProblems, fill=dt$Diabetes), position="fill")
+```
+
+
+```{r}
+temp = dq %>% 
+  group_by(AnyChronicDiseases) %>%
+  summarise(mean_age=mean(Age)) %>%
+  arrange(desc(mean_age))
+  
+ggplot(temp, aes(x=AnyChronicDiseases, y=mean_age, fill=AnyChronicDiseases)) +
+    geom_bar(stat="identity") +
+    scale_fill_manual(values = cols) +
+    labs(y="mean Premium Age")
+  
+  
+```
+
+
+```{r}
+ggplot(dq, aes(x=AnyChronicDiseases, fill=Age_cat)) +
+  geom_bar(position = "fill")
+```
+
+
+```{r}
+temp = num.cols[5]
+q1 = quantile(df[[temp]], 0.25)
+q3 = quantile(df[[temp]], 0.75)
+IQR = q3 - q1
+lb = q1 - 1.5*IQR
+ub = q3 + 1.5*IQR
+lb
+ub
+df[df[[temp]] < lb | df[[temp]] > ub, ]
+```
+```{r}
+dtemp = dt
+dtemp$ID = row.names(dtemp)
+dtemp
+temp = num.cols[-4]
+temp
+identify_outliers_in_all_variables <- function(data, k = 1.5) {
+  outliers <- data.frame()
+
+  for (column in names(data)) {
+    if (column %in% temp) {
+      # Calculate IQR for each variable
+      Q1 <- quantile(data[[column]], 0.25)
+      Q3 <- quantile(data[[column]], 0.75)
+      IQR <- Q3 - Q1
+
+      # Define upper and lower bounds
+      lower_bound <- Q1 - k * IQR
+      upper_bound <- Q3 + k * IQR
+
+      # Identify outliers for the current variable
+      variable_outliers <- data[(data[[column]] < lower_bound) | (data[[column]] > upper_bound), ]
+
+      # Add to the overall outliers dataframe
+      outliers <- rbind(outliers, variable_outliers)
+    }
+  }
+
+  # Keep only rows where all numeric variables are outliers
+  outliers <- outliers[duplicated(outliers), ]
+
+  return(outliers)
+}
+
+identify_outliers_in_all_variables(dtemp)
+
+
 ```
 
 
@@ -428,6 +564,10 @@ for (col in cat.cols) {
   X[[col]] = recode_factor(X[[col]], "0" = paste0(col, "0"),
                            "1" = paste0(col, "1"))
 }
+```
+
+```{r}
+
 ```
 
 
@@ -529,6 +669,31 @@ ggplot(dt, aes(x=cluster, y=Age, color=cluster)) +
 ggplot(dt, aes(x=Age, y=PremiumPrice, color=as.factor(cluster))) +
   geom_point()
 ```
+```{r}
+X.exp = X
+X.exp$cluster = dt$cluster
+X.exp = X.exp[, -which(colnames(X.exp) %in% c("Height", "Weight", "Age"))]
+temp = as.data.frame(table(X.exp$cluster, X.exp$Diabetes))
+temp
+temp = spread(temp, key=Var2, value=Freq)
+temp[, -1] = round(temp[, -1] / rowSums(temp[, -1]), 2)
+temp
+for (i in colnames(X.exp)[-8]) {
+  temp = as.data.frame(table(X.exp$cluster, X.exp[[i]]))
+  temp =spread(temp, key=Var2, value=Freq)
+  temp[, -1] = round(temp[, -1] / rowSums(temp[, -1]), 2)
+  print(temp)
+  if (which(colnames(X.exp) == i) == 1) {
+    emp = temp
+  } else {
+    emp = merge(emp, temp, by="Var1")
+  }
+}
+print(emp)
+
+```
+
+
 ```{r}
 ggplot() +
   geom_bar(dq, mapping=aes(x=cluster, fill=Age_cat), position="fill")
