@@ -649,6 +649,9 @@ dq["cluster"] = as.factor(res.km$cluster)
 
 fviz_nbclust(X.copy, kmeans, method = "silhouette")
 ```
+```{r}
+write.csv(dt, "C:/Users/malis/code/ML/ML_project/data.csv", row.names=F)
+```
 
 
 ```{r}
