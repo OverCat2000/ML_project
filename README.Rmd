@@ -538,8 +538,7 @@ identify_outliers_in_all_variables <- function(data, k = 1.5) {
   return(outliers)
 }
 
-identify_outliers_in_all_variables(dtemp)
-
+identify_outliers_in_all_variables(dtemp[, temp])
 
 ```
 
@@ -603,10 +602,18 @@ fviz_screeplot(res.famd)
 
 
 ```{r}
+famd.reg = FAMD(X, ncp=8)
 ```
 
 
 ```{r}
+famd.reg$ind$coord
+```
+
+
+```{r}
+famd.reg$eig
+write.csv(as.data.frame(famd.reg$ind$coord), "C:/Users/malis/code/ML/ML_project/factor.csv", row.names=F)
 ```
 
 
